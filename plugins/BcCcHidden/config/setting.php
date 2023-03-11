@@ -23,8 +23,8 @@ return [
              * 隠しフィールド用テキストボックスを表示するフィールドタイプ
              */
             'BcCcHidden' => [
-                'category' => '基本',
-                'label' => '隠しフィールド',
+                'category' => __d('baser_core', '基本'),
+                'label' => __d('baser_core', '隠しフィールド'),
                 'columnType' => 'string',
                 'controlType' => 'hidden',
                 'useSize' => true,

@@ -23,7 +23,7 @@ return [
              * Wysiwyg を表示するフィールドタイプ
              */
             'BcCcWysiwyg' => [
-                'category' => 'コンテンツ',
+                'category' => __d('baser_core', 'コンテンツ'),
                 'label' => 'Wysiwyg エディタ',
                 'columnType' => 'text',
                 'controlType' => 'text',

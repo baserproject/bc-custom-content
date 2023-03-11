@@ -17,9 +17,9 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
- * Class CustomContentsControllerTest
+ * Class CustomLinksControllerTest
  */
-class CustomContentsControllerTest extends BcTestCase
+class CustomLinksControllerTest extends BcTestCase
 {
 
     /**
@@ -39,7 +39,8 @@ class CustomContentsControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/Users',
         'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BaserCore.Factory/UserGroups',
-        'plugin.BcCustomContent.Factory/CustomContents',
+        'plugin.BcCustomContent.Factory/CustomFields',
+        'plugin.BcCustomContent.Factory/CustomLinks',
     ];
 
     /**

@@ -25,6 +25,36 @@ class CustomLinksController extends BcApiController
 {
 
     /**
+     * 一覧取得API
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function index(CustomLinksServiceInterface $service)
+    {
+        //todo 一覧取得API
+    }
+
+    /**
+     * 単一データAPI
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function view(CustomLinksServiceInterface $service)
+    {
+        //todo 単一データAPI
+    }
+
+    /**
+     * 新規追加API
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function add(CustomLinksServiceInterface $service)
+    {
+        //todo 新規追加API
+    }
+
+    /**
      * カスタムリンク編集API
      *
      * @param CustomLinksServiceInterface $service
@@ -39,15 +69,15 @@ class CustomLinksController extends BcApiController
 
         try {
             $entity = $service->update($service->get($id), $this->request->getData());
-            $message = __d('baser', 'カスタムリンク「{0}」を更新しました。', $entity->title);
+            $message = __d('baser_core', 'カスタムリンク「{0}」を更新しました。', $entity->title);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $entity = $e->getEntity();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $message = __d('baser_core', '入力エラーです。内容を修正してください。');
         } catch (\Throwable $e) {
             $entity = $e->getEntity();
             $this->setResponse($this->response->withStatus(500));
-            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -57,6 +87,26 @@ class CustomLinksController extends BcApiController
         ]);
 
         $this->viewBuilder()->setOption('serialize', ['customLink', 'message', 'errors']);
+    }
+
+    /**
+     * 削除API
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function delete(CustomLinksServiceInterface $service)
+    {
+        //todo 削除API
+    }
+
+    /**
+     * リストAPI
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function list(CustomLinksServiceInterface $service)
+    {
+        //todo リストAPI
     }
 
     /**

@@ -9,10 +9,11 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-return [
-    'type' => ['BcCustomContentPlugin'],
-    'title' => __d('baser_core', 'カスタムコンテンツ：パスワードフィールド'),
-    'description' => __d('baser_core', 'カスタムコンテンツにパスワードフィールドを提供する'),
-    'author' => 'baserCMS User Community',
-    'url' => 'https://basercms.net',
-];
+namespace BcCustomContent\Test\Fixture\Factory;
+
+use Cake\TestSuite\Fixture\TestFixture;
+
+/**
+ * Class CustomTablesFixture
+ */
+class CustomTablesFixture extends TestFixture {}
