@@ -9,10 +9,10 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Controller\Api;
+namespace BcCustomContent\Controller\Api\Admin;
 
-use BaserCore\Controller\Api\BcApiController;
-use BcCustomContent\Service\CustomFieldsServiceInterface;
+use BaserCore\Controller\Api\Admin\BcAdminApiController;
+use BcCustomContent\Service\CustomTablesServiceInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Exception\PersistenceFailedException;
 use BaserCore\Annotation\UnitTest;
@@ -20,74 +20,76 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 
 /**
- * CustomFieldsController
+ * CustomTablesController
  */
-class CustomFieldsController extends BcApiController
+class CustomTablesController extends BcAdminApiController
 {
     /**
      * 一覧取得API
      *
-     * @param CustomFieldsServiceInterface $service
+     * @param CustomTablesServiceInterface $service
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function index(CustomFieldsServiceInterface $service)
+    public function index(CustomTablesServiceInterface $service)
     {
         $this->request->allowMethod('get');
         $this->set([
-            'customFields' => $this->paginate(
+            'customTables' => $this->paginate(
                 $service->getIndex($this->request->getQueryParams())
             )
         ]);
-        $this->viewBuilder()->setOption('serialize', ['customFields']);
+        $this->viewBuilder()->setOption('serialize', ['customTables']);
     }
 
     /**
      * 単一データAPI
      *
-     * @param CustomFieldsServiceInterface $service
+     * @param CustomTablesServiceInterface $service
      * @param int $id
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function view(CustomFieldsServiceInterface $service, int $id)
+    public function view(CustomTablesServiceInterface $service, int $id)
     {
-        $this->request->allowMethod('get');
-        $customField = $message = null;
+        $this->request->allowMethod(['get']);
+        $customTable = $message = null;
         try {
-            $customField = $service->get($id);
+            $customTable = $service->get($id, $this->request->getQueryParams());
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser_core', 'データが見つかりません');
+            $message = __d('baser_core', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
         }
-
         $this->set([
-            'customField' => $customField,
+            'customTable' => $customTable,
             'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'customField']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'customTable']);
     }
 
     /**
      * 新規追加API
      *
-     * @param CustomFieldsServiceInterface $service
+     * @param CustomTablesServiceInterface $service
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function add(CustomFieldsServiceInterface $service)
+    public function add(CustomTablesServiceInterface $service)
     {
-        $this->request->allowMethod(['post']);
-        $customField = $errors = null;
+        $this->request->allowMethod(['post', 'delete']);
+        $customTable = $errors = null;
         try {
-            $customField = $service->create($this->request->getData());
-            $message = __d('baser_core', 'フィールド「{0}」を追加しました。', $customField->title);
+            $customTable = $service->create($this->request->getData());
+            $message = __d('baser_core', 'テーブル「{0}」を追加しました。', $customTable->title);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -96,98 +98,101 @@ class CustomFieldsController extends BcApiController
             $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
         }
-
         $this->set([
             'message' => $message,
-            'customField' => $customField,
-            'errors' => $errors
+            'customTable' => $customTable,
+            'errors' => $errors,
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'customField', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'customTable', 'errors']);
     }
 
     /**
      * 編集API
      *
-     * @param CustomFieldsServiceInterface $service
+     * @param CustomTablesServiceInterface $service
      * @param int $id
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function edit(CustomFieldsServiceInterface $service, int $id)
+    public function edit(CustomTablesServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'put']);
-        $customField = $errors = null;
+        $customTable = $errors = null;
         try {
-            $customField = $service->update($service->get($id), $this->request->getData());
-            $message = __d('baser_core', 'フィールド「{0}」を更新しました。', $customField->title);
+            $customTable = $service->update($service->get($id), $this->request->getData());
+            $message = __d('baser_core', 'テーブル「{0}」を更新しました。', $customTable->title);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
             $this->setResponse($this->response->withStatus(400));
-        } catch (RecordNotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser_core', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
         }
+
         $this->set([
+            'customTable' => $customTable,
             'message' => $message,
-            'customField' => $customField,
-            'errors' => $errors
+            'errors' => $errors,
         ]);
-        $this->viewBuilder()->setOption('serialize', ['customField', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['customTable', 'message', 'errors']);
     }
 
     /**
      * 削除API
      *
-     * @param CustomFieldsServiceInterface $service
+     * @param CustomTablesServiceInterface $service
      * @param int $id
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function delete(CustomFieldsServiceInterface $service, int $id)
+    public function delete(CustomTablesServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $customField = null;
+
+        $customTable = null;
         try {
-            $customField = $service->get($id);
-            $service->delete($id);
-            $message = __d('baser_core', 'フィールド「{0}」を削除しました。', $customField->title);
+            $customTable = $service->get($id);
+            if ($service->delete($id)) {
+                $message = __d('baser_core', 'テーブル「{0}」を削除しました。', $customTable->title);
+            } else {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');
+            }
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser_core', 'データが見つかりません。');
         } catch (\Throwable $e) {
-            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
+
         $this->set([
             'message' => $message,
-            'customField' => $customField
+            'customTable' => $customTable
         ]);
-        $this->viewBuilder()->setOption('serialize', ['customField', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'customTable']);
     }
 
     /**
      * リストAPI
      *
-     * @param CustomFieldsServiceInterface $service
+     * @param CustomTablesServiceInterface $service
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function list(CustomFieldsServiceInterface $service)
+    public function list(CustomTablesServiceInterface $service)
     {
         $this->request->allowMethod('get');
         $this->set([
-            'customFields' => $service->getList()
+            'customTables' => $service->getList($this->request->getQueryParams())
         ]);
-        $this->viewBuilder()->setOption('serialize', ['customFields']);
+        $this->viewBuilder()->setOption('serialize', ['customTables']);
     }
 }

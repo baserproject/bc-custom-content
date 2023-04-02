@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Test\TestCase\Controller\Api;
+namespace BcCustomContent\Test\TestCase\Controller\Admin\Api;
 
 use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Test\Scenario\InitAppScenario;
@@ -101,7 +101,7 @@ class CustomTablesControllerTest extends BcTestCase
             'display_field' => '求人'
         ]);
         //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_tables/index.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_tables/index.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -129,7 +129,7 @@ class CustomTablesControllerTest extends BcTestCase
             'display_field' => 'お問い合わせ'
         ]);
         //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_tables/view/1.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_tables/view/1.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -139,7 +139,7 @@ class CustomTablesControllerTest extends BcTestCase
         $dataBaseService->dropTable('custom_entry_1_contact');
 
         //存在しないcustomTableIDを指定場合、
-        $this->get('/baser/api/bc-custom-content/custom_tables/view/11.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_tables/view/11.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseCode(404);
         //戻る値を確認
@@ -160,7 +160,7 @@ class CustomTablesControllerTest extends BcTestCase
             'display_field' => 'お問い合わせ'
         ];
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_tables/add.json?token=' . $this->accessToken, $data);
+        $this->post('/baser/api/admin/bc-custom-content/custom_tables/add.json?token=' . $this->accessToken, $data);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -182,7 +182,7 @@ class CustomTablesControllerTest extends BcTestCase
             'name' => 'お問い合わせタイトル',
         ];
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_tables/add.json?token=' . $this->accessToken, $data);
+        $this->post('/baser/api/admin/bc-custom-content/custom_tables/add.json?token=' . $this->accessToken, $data);
         //ステータスを確認
         $this->assertResponseCode(400);
         //戻る値を確認
@@ -212,7 +212,7 @@ class CustomTablesControllerTest extends BcTestCase
         $customTable->create($data);
 
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_tables/edit/1.json?token=' . $this->accessToken, ['name' => 'contact_edit']);
+        $this->post('/baser/api/admin/bc-custom-content/custom_tables/edit/1.json?token=' . $this->accessToken, ['name' => 'contact_edit']);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -227,7 +227,7 @@ class CustomTablesControllerTest extends BcTestCase
 
         //エラーする時をテスト
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_tables/edit/1.json?token=' . $this->accessToken, ['name' => 'あああああ']);
+        $this->post('/baser/api/admin/bc-custom-content/custom_tables/edit/1.json?token=' . $this->accessToken, ['name' => 'あああああ']);
         //ステータスを確認
         $this->assertResponseCode(400);
         //戻る値を確認
@@ -259,7 +259,7 @@ class CustomTablesControllerTest extends BcTestCase
         ]);
 
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_tables/delete/1.json?token=' . $this->accessToken);
+        $this->post('/baser/api/admin/bc-custom-content/custom_tables/delete/1.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -270,7 +270,7 @@ class CustomTablesControllerTest extends BcTestCase
         $this->assertFalse($dataBaseService->tableExists('custom_entry_1_contact'));
 
         //エラーを発生した時をテスト
-        $this->post('/baser/api/bc-custom-content/custom_tables/delete/1.json?token=' . $this->accessToken);
+        $this->post('/baser/api/admin/bc-custom-content/custom_tables/delete/1.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseCode(404);
         //戻る値を確認
@@ -301,7 +301,7 @@ class CustomTablesControllerTest extends BcTestCase
             'display_field' => '求人'
         ]);
         //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_tables/list.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_tables/list.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認

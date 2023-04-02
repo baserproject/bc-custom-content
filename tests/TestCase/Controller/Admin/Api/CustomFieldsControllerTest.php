@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Test\TestCase\Controller\Api;
+namespace BcCustomContent\Test\TestCase\Controller\Admin\Api;
 
 use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Test\Scenario\InitAppScenario;
@@ -19,7 +19,6 @@ use BcCustomContent\Service\CustomTablesServiceInterface;
 use BcCustomContent\Test\Factory\CustomFieldFactory;
 use BcCustomContent\Test\Scenario\CustomFieldsScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
-use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class CustomFieldsControllerTest
@@ -91,7 +90,7 @@ class CustomFieldsControllerTest extends BcTestCase
         //データを生成
         $this->loadFixtureScenario(CustomFieldsScenario::class);
         //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_fields/index.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_fields/index.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -107,7 +106,7 @@ class CustomFieldsControllerTest extends BcTestCase
         //データを生成
         $this->loadFixtureScenario(CustomFieldsScenario::class);
         //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_fields/view/1.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_fields/view/1.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -116,7 +115,7 @@ class CustomFieldsControllerTest extends BcTestCase
         $this->assertEquals('求人分類', $result->customField->title);
 
         //存在しないIDを指定した場合、
-        $this->get('/baser/api/bc-custom-content/custom_fields/view/11.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_fields/view/11.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseCode(404);
         //戻る値を確認
@@ -137,7 +136,7 @@ class CustomFieldsControllerTest extends BcTestCase
             'default_value' => '新卒採用',
         ];
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/add.json?token=' . $this->accessToken, $data);
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/add.json?token=' . $this->accessToken, $data);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -147,7 +146,7 @@ class CustomFieldsControllerTest extends BcTestCase
 
         //エラーを発生したの場合、
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/add.json?token=' . $this->accessToken, ['title' => null]);
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/add.json?token=' . $this->accessToken, ['title' => null]);
         //ステータスを確認
         $this->assertResponseCode(400);
         //戻る値を確認
@@ -166,7 +165,7 @@ class CustomFieldsControllerTest extends BcTestCase
         $data = CustomFieldFactory::get(1);
         $data['title'] = 'test edit title';
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/edit/1.json?token=' . $this->accessToken, $data->toArray());
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/edit/1.json?token=' . $this->accessToken, $data->toArray());
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -177,7 +176,7 @@ class CustomFieldsControllerTest extends BcTestCase
         //タイトルを指定しない場合、
         $data['title'] = null;
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/edit/1.json?token=' . $this->accessToken, $data->toArray());
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/edit/1.json?token=' . $this->accessToken, $data->toArray());
         //ステータスを確認
         $this->assertResponseCode(400);
         //戻る値を確認
@@ -187,7 +186,7 @@ class CustomFieldsControllerTest extends BcTestCase
 
         //存在しないIDを指定したの場合、
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/edit/11.json?token=' . $this->accessToken, $data->toArray());
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/edit/11.json?token=' . $this->accessToken, $data->toArray());
         //ステータスを確認
         $this->assertResponseCode(404);
         //戻る値を確認
@@ -216,7 +215,7 @@ class CustomFieldsControllerTest extends BcTestCase
         $dataBaseService->addColumn('custom_entry_1_recruit', 'recruit_category', 'text');
         $this->loadFixtureScenario(CustomFieldsScenario::class);
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/delete/1.json?token=' . $this->accessToken);
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/delete/1.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -228,7 +227,7 @@ class CustomFieldsControllerTest extends BcTestCase
 
         //存在しないIDを指定したの場合、
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_fields/delete/11.json?token=' . $this->accessToken);
+        $this->post('/baser/api/admin/bc-custom-content/custom_fields/delete/11.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseCode(404);
         //戻る値を確認
@@ -244,7 +243,7 @@ class CustomFieldsControllerTest extends BcTestCase
         //データを生成
         $this->loadFixtureScenario(CustomFieldsScenario::class);
         //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_fields/list.json?token=' . $this->accessToken);
+        $this->get('/baser/api/admin/bc-custom-content/custom_fields/list.json?token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
