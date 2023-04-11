@@ -83,15 +83,17 @@ class CustomEntriesTable extends AppTable
      * 検索インデックスを生成する
      *
      * @param CustomEntry $entry
-     * @return array
+     * @return array|false
      */
     public function createSearchIndex(CustomEntry $entry)
     {
-        /** @var CustomTablesService $tablesService */
-        $tablesService = $this->getService(CustomTablesServiceInterface::class);
-        $contentId = $tablesService->getCustomContentId($entry->custom_table_id);
+        $customContent = $this->CustomTables->CustomContents->find()
+            ->where(['CustomContents.custom_table_id' => $entry->custom_table_id])
+            ->contain(['Contents'])
+            ->first();
         /** @var Content $content */
-        $content = $this->CustomTables->CustomContents->Contents->findByType('BcCustomContent.CustomContent', $contentId);
+        if(!$customContent) return false;
+        $content = $customContent->content;
         return [
             'type' => __d('baser_core', 'カスタムコンテンツ'),
             'model_id' => $entry->id,
@@ -217,6 +219,8 @@ class CustomEntriesTable extends AppTable
             } else {
                 $validator->allowEmptyString($link->name);
             }
+            $validator->requirePresence('creator_id', true, __d('baser_core', '作成者は必須項目です。'))
+                ->notEmptyString('creator_id', __d('baser_core', '作成者は必須項目です。'));
             $validator = $this->setValidateRegex($validator, $link);
             $validator = $this->setValidateEmail($validator, $link);
             $validator = $this->setValidateNumber($validator, $link);
@@ -532,6 +536,7 @@ class CustomEntriesTable extends AppTable
     {
         return $query->formatResults(function(\Cake\Collection\CollectionInterface $results) {
             return $results->map(function($row) {
+                if(!is_object($row) || !method_exists($row, 'toArray')) return $row;
                 $rowArray = $row->toArray();
                 foreach($rowArray as $key => $value) {
                     if (is_string($value) && $this->isJson($value)) {

@@ -59,6 +59,7 @@ class CustomContentsService implements CustomContentsServiceInterface
     public function getIndex(array $queryParams = []): Query
     {
         $queryParams = array_merge([
+            'status' => 'publish',
             'contain' => ['Contents']
         ], $queryParams);
 
@@ -238,7 +239,7 @@ class CustomContentsService implements CustomContentsServiceInterface
         $templatesPaths = array_merge(
             [Plugin::templatePath($site->theme) . 'plugin' . DS . 'BcCustomContent' . DS],
             App::path('templates'),
-            [Plugin::templatePath(Configure::read('BcApp.defaultFrontTheme')) . 'plugin' . DS . 'BcCustomContent' . DS],
+            [Plugin::templatePath(Configure::read('BcApp.coreFrontTheme')) . 'plugin' . DS . 'BcCustomContent' . DS],
             [Plugin::templatePath('BcCustomContent')]
         );
 
