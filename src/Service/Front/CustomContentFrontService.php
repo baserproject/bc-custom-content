@@ -14,6 +14,7 @@ namespace BcCustomContent\Service\Front;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Error\BcException;
 use BaserCore\Service\Front\BcFrontContentsService;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcSiteConfig;
@@ -87,7 +88,7 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
     {
 
         $this->entriesService->setup($customContent->custom_table_id);
-        $params = array_merge_recursive([
+        $params = array_merge([
             'contain' => ['CustomTables' => ['CustomContents' => ['Contents']]],
             'status' => 'publish',
             'order' => $customContent->list_order,
@@ -146,10 +147,15 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * @param int $entryId
      * @return array
      */
-    public function getViewVarsForView(EntityInterface $customContent, mixed $entryId)
+    public function getViewVarsForView(EntityInterface $customContent, mixed $entryId, bool $preview = false)
     {
         $this->entriesService->setup($customContent->custom_table_id);
-        $entity = $this->entriesService->get($entryId, ['status' => 'publish']);
+        if($preview) {
+            $options = [];
+        } else {
+            $options = ['status' => 'publish'];
+        }
+        $entity = $this->entriesService->get($entryId, $options);
         /** @var CustomContent $customContent */
         return [
             'customContent' => $customContent,
@@ -200,11 +206,12 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
         if(!$entryId) throw new NotFoundException();
 
         $customContent = $this->contentsService->get($request->getParam('entityId'));
-        $controller->set($this->getViewVarsForView($customContent, $entryId));
+        $controller->set($this->getViewVarsForView($customContent, $entryId, true));
         $entity = $this->entriesService->CustomEntries->patchEntity(
             $controller->viewBuilder()->getVar('customEntry'),
             $request->getData()
         );
+        $entity = $this->entriesService->CustomEntries->decodeRow($entity);
         $controller->set(['customEntry' => $entity]);
 
         // テンプレートの変更
@@ -222,9 +229,24 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
         $customContent = $this->contentsService->get($request->getParam('entityId'));
         $customContent = $this->contentsService->CustomContents->patchEntity($customContent, $request->getData());
         $controller->setRequest($request->withAttribute('currentContent', $customContent->content));
+
+        $controller->setRequest($controller->getRequest()->withQueryParams(array_merge([
+            'limit' => $customContent->list_count,
+            'sort' => $customContent->list_order,
+            'direction' => $customContent->list_direction
+        ], $controller->getRequest()->getQueryParams())));
+
+        if(!$customContent->custom_table_id) {
+            $controller->viewBuilder()->setTheme('BcThemeSample');
+             throw new NotFoundException(__d('baser_core', 'テーブルを指定してください。'));
+        }
+
         $controller->set($this->getViewVarsForIndex(
             $customContent,
-            $controller->paginate($this->getCustomEntries($customContent))
+            $controller->paginate($this->getCustomEntries($customContent, [
+                'status' => null,
+                'contain' => ['CustomTables']
+            ]))
         ));
 
         // テンプレートの変更
