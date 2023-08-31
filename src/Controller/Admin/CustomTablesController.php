@@ -35,6 +35,9 @@ class CustomTablesController extends CustomContentAdminAppController
      *
      * @param EventInterface $event
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeFilter(EventInterface $event)
     {
@@ -48,6 +51,9 @@ class CustomTablesController extends CustomContentAdminAppController
      * カスタムテーブルの一覧を表示
      *
      * @param CustomTablesServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(CustomTablesAdminServiceInterface $service)
     {
