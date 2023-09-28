@@ -32,6 +32,7 @@ class CustomContentsController extends BcAdminApiController
      *
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(CustomContentsServiceInterface $service)
     {
@@ -57,6 +58,7 @@ class CustomContentsController extends BcAdminApiController
      *
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function view(CustomContentsServiceInterface $service, int $id)
     {
