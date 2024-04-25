@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCcRadio;
+namespace BcCcAutoZip;
 
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -20,7 +20,7 @@ use BaserCore\BcPlugin;
 /**
  * Plugin
  */
-class Plugin extends BcPlugin
+class BcCcAutoZipPlugin extends BcPlugin
 {
 
     /**
