@@ -52,6 +52,7 @@ class CustomFieldsTable extends AppTable
      * @return Validator
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -89,6 +90,28 @@ class CustomFieldsTable extends AppTable
                     'message' => __d('baser_core', '選択リストに同じ項目を複数登録できません。')
                 ]
             ]);
+        $validator
+            ->add('meta', [
+                'checkAlphaNumericWithJson' => [
+                    'rule' => ['checkWithJson', 'BcCustomContent.email_confirm', "/^[a-z0-9_]+$/"],
+                    'provider' => 'bc',
+                    'message' => __d('baser_core', 'Eメール比較先フィールド名は半角小文字英数字とアンダースコアのみで入力してください。')
+                ],
+            ])
+            ->add('meta', [
+                'checkMaxFileSizeWithJson' => [
+                    'rule' => ['checkWithJson', 'BcCustomContent.max_file_size', "/^[0-9]+$/"],
+                    'provider' => 'bc',
+                    'message' => __d('baser_core', 'ファイルアップロードサイズ上限は整数値のみで入力してください。')
+                ],
+            ])
+            ->add('meta', [
+                'checkFileExtWithJson' => [
+                    'rule' => ['checkWithJson', 'BcCustomContent.file_ext', "/^[a-z,]+$/"],
+                    'provider' => 'bc',
+                    'message' => __d('baser_core', '拡張子を次の形式のようにカンマ（,）区切りで入力します。')
+                ],
+            ]);
         return $validator;
     }
 
@@ -105,6 +128,33 @@ class CustomFieldsTable extends AppTable
     {
         // beforeMarshal のタイミングで変換しないと配列が null になってしまう
         $this->encodeEntity($content);
+    }
+
+    /**
+     * afterMarshal
+     *
+     * @param EventInterface $event
+     * @param EntityInterface $entity
+     * @param ArrayObject $data
+     * @param ArrayObject $options
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $data, ArrayObject $options)
+    {
+        $metaErrors = $entity->getError('meta');
+        if (isset($metaErrors['checkAlphaNumericWithJson'])) {
+            $entity->setError('meta.BcCustomContent.email_confirm', ['checkAlphaNumericWithJson' => $metaErrors['checkAlphaNumericWithJson']]);
+        }
+        if (isset($metaErrors['checkFileExtWithJson'])) {
+            $entity->setError('meta.BcCustomContent.file_ext', ['checkFileExtWithJson' => $metaErrors['checkFileExtWithJson']]);
+        }
+        if (isset($metaErrors['checkMaxFileSizeWithJson'])) {
+            $entity->setError('meta.BcCustomContent.max_file_size', ['checkMaxFileSizeWithJson' => $metaErrors['checkMaxFileSizeWithJson']]);
+        }
     }
 
     /**
