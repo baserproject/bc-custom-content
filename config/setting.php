@@ -110,7 +110,6 @@ return [
             'group' => [
                 'category' => __d('baser_core', 'その他'),
                 'label' => __d('baser_core', 'グループ'),
-                'useDefaultValue' => false
             ]
         ]
     ]

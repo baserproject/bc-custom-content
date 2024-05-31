@@ -31,7 +31,6 @@ use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -53,24 +52,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      */
     use BcContainerTrait;
     use CustomContentArrayTrait;
-
-    /**
-     * CustomEntries Table
-     * @var CustomEntriesTable|Table
-     */
-    public CustomEntriesTable|Table $CustomEntries;
-
-    /**
-     * CustomTables Table
-     * @var CustomTablesTable|Table
-     */
-    public CustomTablesTable|Table $CustomTables;
-
-    /**
-     * BcDatabaseService
-     * @var BcDatabaseServiceInterface|BcDatabaseService
-     */
-    public BcDatabaseServiceInterface|BcDatabaseService $BcDatabaseService;
 
     /**
      * Constructor
@@ -243,7 +224,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             'title' => null,
             'creator_id' => null,
             'status' => null,
-            'custom_content_id' => null
         ], $params);
 
         // 公開状態
@@ -273,12 +253,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         // 作成者
         if (!is_null($params['creator_id'])) {
             $conditions['CustomEntries.creator_id'] = $params['creator_id'];
-        }
-
-        // custom_content_id
-        if (!is_null($params['custom_content_id'])) {
-            $query->contain('CustomTables.CustomContents');
-            $conditions['CustomContents.id'] = $params['custom_content_id'];
         }
 
         unset($params['status'], $params['title'], $params['creator_id']);
@@ -339,7 +313,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         $table = $this->CustomEntries->CustomTables->get($this->CustomEntries->tableId);
         $this->CustomEntries->setDisplayField($table->display_field);
         if ($table->has_child) {
-            return $this->getParentTargetList(null, $options);
+            return $this->getParentTargetList(null, $options['conditions']);
         } else {
             return $this->CustomEntries->find('list')->where($options['conditions'])->toArray();
         }
@@ -360,11 +334,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         if (strpos($order, '.') === false) {
             $order = "CustomEntries.{$order}";
         }
-        if($order !== 'CustomEntries.id') {
-            return "{$order} {$direction}, CustomEntries.id {$direction}";
-        } else {
-            return "{$order} {$direction}";
-        }
+        return "{$order} {$direction}, CustomEntries.id {$direction}";
     }
 
     /**

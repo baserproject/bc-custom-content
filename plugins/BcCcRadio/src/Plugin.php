@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCcTel;
+namespace BcCcRadio;
 
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -20,15 +20,6 @@ use BaserCore\BcPlugin;
 /**
  * Plugin
  */
-class BcCcTelPlugin extends BcPlugin
-{
-
-    /**
-     * Routes
-     * プラグインのルーティンを追加しないように空のメソッドとする
-     * @param \Cake\Routing\RouteBuilder $routes
-     * @return void
-     */
-    public function routes(\Cake\Routing\RouteBuilder $routes): void {}
+class Plugin extends BcPlugin{
 
 }
