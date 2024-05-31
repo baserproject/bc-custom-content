@@ -20,7 +20,7 @@ use BaserCore\BcPlugin;
 /**
  * Plugin
  */
-class Plugin extends BcPlugin
+class BcCcTelPlugin extends BcPlugin
 {
 
     /**
