@@ -28,11 +28,12 @@ class CustomContentAdminAppView extends BcAdminAppView
      * initialize
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
         parent::initialize();
-        $this->loadHelper('BcCustomContent.CustomContentAdmin');
+        $this->addHelper('BcCustomContent.CustomContentAdmin');
     }
 
 }

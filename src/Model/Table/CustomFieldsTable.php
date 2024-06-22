@@ -32,6 +32,7 @@ class CustomFieldsTable extends AppTable
      * @param array $config
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -82,6 +83,19 @@ class CustomFieldsTable extends AppTable
         $validator
             ->scalar('type')
             ->notEmptyString('type', __d('baser_core', 'タイプを入力してください。'));
+
+        $validator
+            ->allowEmptyString('size')
+            ->integer('size', __d('baser_core', '横幅サイズは整数を入力してください。'));
+
+        $validator
+            ->allowEmptyString('line')
+            ->integer('line', __d('baser_core', '行数は整数を入力してください。'));
+
+        $validator
+            ->allowEmptyString('max_length')
+            ->integer('max_length', __d('baser_core', '最大文字数は整数を入力してください。'));
+
         $validator
             ->add('source', [
                 'checkSelectList' => [
@@ -123,6 +137,7 @@ class CustomFieldsTable extends AppTable
      * @param ArrayObject $options
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function beforeMarshal(EventInterface $event, ArrayObject $content, ArrayObject $options)
     {
@@ -180,6 +195,7 @@ class CustomFieldsTable extends AppTable
      *
      * @param EntityInterface $entity
      * @return mixed
+     * @unitTest
      */
     public function decodeEntity(EntityInterface|array|null $entity): EntityInterface|array|null
     {
@@ -196,6 +212,7 @@ class CustomFieldsTable extends AppTable
      * @return ArrayObject
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function encodeEntity(ArrayObject $entity)
     {

@@ -11,12 +11,14 @@
 
 namespace BcCustomContent\Test\TestCase\Model\Table;
 
+use ArrayObject;
 use BaserCore\TestSuite\BcTestCase;
 use BcCustomContent\Model\Table\CustomFieldsTable;
 use Cake\Routing\Router;
 
 /**
  * CustomFieldsTableTest
+ * @property CustomFieldsTable $CustomFieldsTable
  */
 class CustomFieldsTableTest extends BcTestCase
 {
@@ -44,6 +46,18 @@ class CustomFieldsTableTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $this->assertTrue($this->CustomFieldsTable->hasBehavior('Timestamp'));
+        $this->assertTrue($this->CustomFieldsTable->hasAssociation('CustomLinks'));
+    }
+
+    /**
+     * test validationDefault
+     */
     public function test_validationDefault()
     {
         $validator = $this->CustomFieldsTable->getValidator('default');
@@ -108,6 +122,37 @@ class CustomFieldsTableTest extends BcTestCase
     }
 
     /**
+     * test beforeMarshal
+     */
+    public function test_beforeMarshal()
+    {
+        //case true
+        $data = [
+            'meta' => [
+                'test' => 'test'
+            ],
+            'validate' => [
+                'test' => 'test'
+            ]
+        ];
+        $options = new \ArrayObject();
+        $content = new \ArrayObject($data);
+        $this->CustomFieldsTable->dispatchEvent('Model.beforeMarshal', ['entity' => $content, 'options' => $options]);
+        $this->assertEquals('{"test":"test"}', $content['meta']);
+        $this->assertEquals('{"test":"test"}', $content['validate']);
+        //case false
+        $data = [
+            'meta' => '',
+            'validate' => ''
+        ];
+        $options = new \ArrayObject();
+        $content = new \ArrayObject($data);
+        $this->CustomFieldsTable->dispatchEvent('Model.beforeMarshal', ['entity' => $content, 'options' => $options]);
+        $this->assertEquals('', $content['meta']);
+        $this->assertEquals('', $content['validate']);
+    }
+
+    /**
      * test afterMarshal
      */
     public function test_afterMarshal()
@@ -122,4 +167,37 @@ class CustomFieldsTableTest extends BcTestCase
         $errors = $customFields->getErrors();
         $this->assertEquals('Eメール比較先フィールド名は半角小文字英数字とアンダースコアのみで入力してください。', $errors['meta.BcCustomContent.email_confirm']['checkAlphaNumericWithJson']);
     }
+
+    /**
+     * test findAll
+     */
+    public function test_findAll()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test encodeEntity
+     */
+    public function test_encodeEntity()
+    {
+        $entity = new ArrayObject(['meta' => ['key' => 'value'], 'validate' => ['rule' => 'notEmpty']]);
+        $result = $this->CustomFieldsTable->encodeEntity($entity);
+        $this->assertEquals(json_encode(['key' => 'value'], JSON_UNESCAPED_UNICODE), $result['meta']);
+        $this->assertEquals(json_encode(['rule' => 'notEmpty'], JSON_UNESCAPED_UNICODE), $result['validate']);
+
+        //meta empty and validate empty
+        $entity = new ArrayObject(['meta' => [], 'validate' => []]);
+        $result = $this->CustomFieldsTable->encodeEntity($entity);
+        $this->assertEmpty($result['meta']);
+        $this->assertEmpty($result['validate']);
+
+        //without meta and validate
+        $entity = new ArrayObject(['other' => 'value']);
+        $result = $this->CustomFieldsTable->encodeEntity($entity);
+        $this->assertEquals('value', $result['other']);
+        $this->assertArrayNotHasKey('meta', $result);
+        $this->assertArrayNotHasKey('validate', $result);
+    }
+
 }

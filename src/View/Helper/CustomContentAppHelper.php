@@ -44,7 +44,7 @@ class CustomContentAppHelper extends Helper
      * Helper
      * @var string[]
      */
-    public $helpers = ['BaserCore.BcBaser'];
+    public array $helpers = ['BaserCore.BcBaser'];
 
     /**
      * Constructor
@@ -73,7 +73,10 @@ class CustomContentAppHelper extends Helper
             if ($plugin === 'group') continue;
             $pluginPath = Plugin::path($plugin);
             if (file_exists($pluginPath . 'src' . DS . 'View' . DS . 'Helper' . DS . $plugin . 'Helper.php')) {
-                $this->{$plugin} = $this->_View->loadHelper($plugin . '.' . $plugin);
+                $this->{$plugin} = $this->_View->loadHelper(
+                    "$plugin",
+                    ['className' => "$plugin.$plugin"]
+                );
             }
         }
     }
@@ -87,6 +90,7 @@ class CustomContentAppHelper extends Helper
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function isEnableField(CustomLink $customLink): bool
     {
@@ -103,6 +107,7 @@ class CustomContentAppHelper extends Helper
      * @return mixed|string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getEntryUrl(CustomEntry $entry, $full = true)
     {
