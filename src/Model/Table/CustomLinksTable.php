@@ -138,6 +138,7 @@ class CustomLinksTable extends AppTable
      * @return bool|void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -155,6 +156,7 @@ class CustomLinksTable extends AppTable
      * @param ArrayObject $options
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -168,6 +170,7 @@ class CustomLinksTable extends AppTable
      * @param array $customLinks
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function updateSort(array $customLinks)
     {
@@ -191,6 +194,7 @@ class CustomLinksTable extends AppTable
      * @return bool|int|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getCurentSort(int $id, int $tableId, $parentId)
     {
@@ -203,7 +207,7 @@ class CustomLinksTable extends AppTable
         $contents = $this->find()
             ->select(['id', 'parent_id', 'title'])
             ->where($conditions)
-            ->order('lft');
+            ->orderBy('lft');
         $order = null;
         if (!$contents->all()->isEmpty()) {
             foreach($contents as $key => $data) {
@@ -221,11 +225,12 @@ class CustomLinksTable extends AppTable
     /**
      * オフセットを元に関連フィールドを移動する
      *
-     * @param $id
+     * @param $field
      * @param $offset
      * @return EntityInterface|bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function moveOffset($field, $offset)
     {
@@ -248,6 +253,7 @@ class CustomLinksTable extends AppTable
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getUniqueName(string $name, int $tableId)
     {
@@ -255,7 +261,7 @@ class CustomLinksTable extends AppTable
         $entities = $this->find()
             ->select('name')
             ->where(['name LIKE' => $name . '%', 'custom_table_id' => $tableId])
-            ->order('name')
+            ->orderBy('name')
             ->all()
             ->toArray();
         if (!$entities) return $name;

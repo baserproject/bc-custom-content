@@ -28,6 +28,7 @@ use BcCustomContent\Service\CustomTablesService;
 use BcCustomContent\Service\CustomTablesServiceInterface;
 use Cake\Controller\Controller;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Paging\PaginatedResultSet;
 use Cake\Datasource\ResultSetInterface;
 use Cake\Http\Exception\NotFoundException;
 
@@ -113,13 +114,13 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * 一覧用の View 変数を取得する
      *
      * @param EntityInterface $customContent
-     * @param ResultSetInterface $customEntries
+     * @param PaginatedResultSet $customEntries
      * @return array
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function getViewVarsForIndex(EntityInterface $customContent, ResultSetInterface $customEntries): array
+    public function getViewVarsForIndex(EntityInterface $customContent, PaginatedResultSet $customEntries): array
     {
         /** @var CustomContent $customContent */
         /** @var CustomTablesService $customTables */
