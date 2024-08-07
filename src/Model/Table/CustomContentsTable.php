@@ -33,8 +33,8 @@ class CustomContentsTable extends AppTable
      *
      * @param array $config テーブル設定
      * @checked
-     * @noTodo
      * @unitTest
+     * @noTodo
      */
     public function initialize(array $config): void
     {
@@ -55,14 +55,13 @@ class CustomContentsTable extends AppTable
      * @return Validator
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function validationWithTable(Validator $validator): Validator
     {
         $validator->setProvider('bc', 'BaserCore\Model\Validation\BcValidation');
         $validator->requirePresence('list_count', 'update')
             ->notEmptyString('list_count', __d('baser_core', '一覧表示件数は必須項目です。'))
-            ->range('list_count', [0, 100], __d('baser_core', '一覧表示件数は100までの数値で入力してください。'))
+            ->range('list_count', [0, 101], __d('baser_core', '一覧表示件数は100までの数値で入力してください。'))
             ->add('list_count', 'halfText', [
                 'provider' => 'bc',
                 'rule' => 'halfText',
@@ -78,7 +77,6 @@ class CustomContentsTable extends AppTable
      * @return boolean
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function beforeSave(EventInterface $event, EntityInterface $entity, \ArrayObject $options)
     {
@@ -98,7 +96,6 @@ class CustomContentsTable extends AppTable
      * @return array|false
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function createSearchIndex($entity)
     {

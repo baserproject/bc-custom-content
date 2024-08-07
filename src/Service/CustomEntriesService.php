@@ -97,7 +97,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         $default = [
             'custom_table_id' => $tableId,
             'creator_id' => BcUtil::loginUser()->id,
-            'published' => \Cake\I18n\DateTime::now(),
+            'published' => FrozenTime::now(),
             'status' => 0
         ];
 
@@ -124,7 +124,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @return string
      * @notodo
      * @checked
-     * @unitTest
      */
     public function getFieldControlType(string $type)
     {
@@ -700,8 +699,8 @@ class CustomEntriesService implements CustomEntriesServiceInterface
     {
         $allowPublish = $entity->status;
         // 期限を設定している場合に条件に該当しない場合は強制的に非公開とする
-        $invalidBegin = $entity->publish_begin instanceof \Cake\I18n\DateTime && $entity->publish_begin->isFuture();
-        $invalidEnd = $entity->publish_end instanceof \Cake\I18n\DateTime && $entity->publish_end->isPast();
+        $invalidBegin = $entity->publish_begin instanceof FrozenTime && $entity->publish_begin->isFuture();
+        $invalidEnd = $entity->publish_end instanceof FrozenTime && $entity->publish_end->isPast();
         if ($invalidBegin || $invalidEnd) {
             $allowPublish = false;
         }

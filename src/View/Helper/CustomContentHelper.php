@@ -41,7 +41,7 @@ class CustomContentHelper extends CustomContentAppHelper
      * ヘルパ
      * @var string[]
      */
-    public array $helpers = ['BaserCore.BcBaser', 'BaserCore.BcTime'];
+    public $helpers = ['BaserCore.BcBaser', 'BaserCore.BcTime'];
 
     /**
      * カスタムリンクのキャッシュ
@@ -59,7 +59,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getTitle()
     {
@@ -70,7 +69,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * カスタムコンテンツのタイトルを出力する
      * @checked
      * @noTodo
-     * @unitTest ラッパーメソッドに付きテスト不要
      */
     public function title(): void
     {
@@ -84,7 +82,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function descriptionExists(CustomContent $content)
     {
@@ -123,7 +120,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getEntryTitle(CustomEntry $entry)
     {
@@ -161,7 +157,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getPublished(CustomEntry $entry)
     {
@@ -174,7 +169,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @param CustomEntry $entry
      * @checked
      * @noTodo
-     * @unitTest ラッパーメソッドに付きテスト不要
      */
     public function published(CustomEntry $entry)
     {
@@ -189,7 +183,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return array|bool|float|int|mixed|string|null
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getFieldTitle(mixed $entry, string $fieldName)
     {
@@ -207,7 +200,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return string|array
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getFieldValue(mixed $entry, string $fieldName, array $options = [])
     {
@@ -249,7 +241,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return false|mixed
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getLink(int $tableId, string $fieldName)
     {
@@ -271,7 +262,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return false
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getField(int $tableId, string $fieldName)
     {
@@ -287,7 +277,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isLoop(CustomEntry $customEntry, string $fieldName): bool
     {
@@ -304,7 +293,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return mixed
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getLinks(int $tableId, bool $isThreaded = true)
     {
@@ -328,7 +316,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return \Cake\Datasource\ResultSetInterface
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getLinkChildren(CustomEntry $customEntry, string $fieldName)
     {
@@ -345,7 +332,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * 関連リンクのエンティティキャッシュを削除する
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function clearCacheLinks()
     {
@@ -360,7 +346,6 @@ class CustomContentHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isDisplayField(CustomEntry $entry, string $fieldName)
     {

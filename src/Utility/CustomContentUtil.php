@@ -30,7 +30,6 @@ class CustomContentUtil
      * @return mixed
      * @checked
      * @noTodo
-     * @unitTest
      */
     public static function getPluginSetting(string $plugin, string $name = '')
     {

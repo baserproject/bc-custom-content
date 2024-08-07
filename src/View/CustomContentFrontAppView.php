@@ -28,12 +28,11 @@ class CustomContentFrontAppView extends AppView
      * initialize
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function initialize(): void
     {
         parent::initialize();
-        $this->addHelper('BcCustomContent.CustomContent');
+        $this->loadHelper('BcCustomContent.CustomContent');
     }
 
 }

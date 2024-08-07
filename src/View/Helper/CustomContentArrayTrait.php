@@ -31,7 +31,6 @@ trait CustomContentArrayTrait
      * @return string
      * @checked
      * @noTodo
-     * @UnitTest
      */
     public function arrayValue($key, $array, $noValue = '')
     {
@@ -59,7 +58,6 @@ trait CustomContentArrayTrait
      * @return array
      * @checked
      * @noTodo
-     * @UnitTest
      */
     public function textToArray($str)
     {
