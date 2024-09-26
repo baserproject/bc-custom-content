@@ -65,10 +65,7 @@ class CustomContentController extends BcFrontAppController
 
         $this->set($service->getViewVarsForIndex(
             $customContent,
-            $this->paginate(
-                $service->getCustomEntries($customContent, $this->getRequest()->getQueryParams()),
-                ['limit' => $customContent->list_count]
-            )
+            $this->paginate($service->getCustomEntries($customContent, $this->getRequest()->getQueryParams()))
         ));
         $this->setRequest($this->getRequest()->withParsedBody($this->getRequest()->getQueryParams()));
         $this->render($service->getIndexTemplate($customContent));
