@@ -137,18 +137,15 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             'limit' => null,
             'direction' => '',    // 並び方向
             'order' => '',    // 並び順対象のフィールド
-            'contain' => [],
+            'contain' => ['CustomTables' => ['CustomContents' => ['Contents']]],
             'status' => '',
             'use_api' => null
         ], $queryParams);
 
         $query = $this->CustomEntries->find()
             ->select($this->createSelect($options))
+            ->select($this->CustomEntries->CustomTables)
             ->contain($options['contain']);
-
-        if(array_key_exists('CustomTables', $options['contain']) || in_array('CustomTables', $options['contain'])) {
-            $query->select($this->CustomEntries->CustomTables);
-        }
 
         if ($options['order']) {
             $query->order($this->createOrder($options['order'], $options['direction']));
@@ -226,7 +223,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         // 公開状態
         if ($params['status'] === 'publish') {
             $conditions = $this->CustomEntries->getConditionAllowPublish();
-            $query->contain(['CustomTables' => ['CustomContents' => ['Contents']]]);
+            $params['contain'] = ['CustomTables' => ['CustomContents' => ['Contents']]];
             $fields = $this->CustomEntries->getSchema()->columns();
             $query->select($fields);
             $conditions = array_merge_recursive(

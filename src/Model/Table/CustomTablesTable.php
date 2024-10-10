@@ -31,7 +31,6 @@ class CustomTablesTable extends AppTable
      * @param array $config
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -52,9 +51,6 @@ class CustomTablesTable extends AppTable
 
     /**
      * ツリー構造形式の関連フィールドを hasMany で設定する
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function setHasManyLinksByThreaded()
     {
@@ -69,9 +65,6 @@ class CustomTablesTable extends AppTable
 
     /**
      * ツリー構造形式ではない通常一覧の関連フィールドを hasMany で設定する
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function setHasManyLinksByAll()
     {
@@ -88,9 +81,6 @@ class CustomTablesTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {

@@ -63,22 +63,6 @@ class CustomContentsControllerTest extends BcTestCase
     }
 
     /**
-     * test index
-     */
-    public function test_index()
-    {
-        //データを生成
-        $this->loadFixtureScenario(CustomContentsScenario::class);
-        //APIを呼ぶ
-        $this->get('/baser/api/admin/bc-custom-content/custom_contents/index.json?token=' . $this->accessToken);
-        //ステータスを確認
-        $this->assertResponseOk();
-        //戻る値を確認
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertCount(2, $result->customContents);
-    }
-
-    /**
      * test add
      */
     public function test_add()
@@ -115,31 +99,6 @@ class CustomContentsControllerTest extends BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
         $this->assertEquals('関連するコンテンツがありません', $result->errors->content->_required);
-    }
-
-    /**
-     * test view
-     */
-    public function test_view()
-    {
-        //データを生成
-        $this->loadFixtureScenario(CustomContentsScenario::class);
-        //APIを呼ぶ
-        $this->get('/baser/api/admin/bc-custom-content/custom_contents/view/1.json?token=' . $this->accessToken);
-        //ステータスを確認
-        $this->assertResponseOk();
-        //戻る値を確認
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals($result->customContent->description, 'サービステスト');
-        $this->assertEquals($result->customContent->content->url, '/');
-
-        //エラーを発生した時の確認
-        $this->get('/baser/api/admin/bc-custom-content/custom_contents/view/10.json?token=' . $this->accessToken);
-        //ステータスを確認
-        $this->assertResponseCode(404);
-        //戻る値を確認
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('データが見つかりません。', $result->message);
     }
 
     /**

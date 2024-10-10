@@ -36,7 +36,6 @@ class CustomLinksTable extends AppTable
      * @param array $config
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -56,9 +55,6 @@ class CustomLinksTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
-     * @noTodo
-     * @checked
-     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -91,9 +87,6 @@ class CustomLinksTable extends AppTable
      * scope の設定のため、TreeBehavior より優先度を高くする
      *
      * @return array
-     * @noTodo
-     * @checked
-     * @unitTest
      */
     public function implementedEvents(): array
     {

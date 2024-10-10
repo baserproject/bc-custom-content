@@ -66,7 +66,6 @@ class CustomEntriesTable extends AppTable
      * @param array $config
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -84,9 +83,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param CustomEntry $entry
      * @return array|false
-     * @noTodo
-     * @checked
-     * @unitTest
      */
     public function createSearchIndex(CustomEntry $entry)
     {
@@ -116,9 +112,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param CustomEntry $entity
      * @return string
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function createSearchDetail(CustomEntry $entity): string
     {
@@ -140,9 +133,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param int $tableId
      * @return bool
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function setUp(int $tableId, array $postData = [])
     {
