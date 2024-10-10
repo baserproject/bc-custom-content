@@ -39,6 +39,16 @@ class CustomContentsAdminServiceTest extends BcTestCase
     public $CustomContentsAdminService;
 
     /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BcCustomContent.Factory/CustomContents',
+        'plugin.BaserCore.Factory/Contents',
+    ];
+
+    /**
      * Set up
      */
     public function setUp(): void

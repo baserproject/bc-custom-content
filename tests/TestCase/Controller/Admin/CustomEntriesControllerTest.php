@@ -37,6 +37,21 @@ class CustomEntriesControllerTest extends BcTestCase
     use BcContainerTrait;
 
     /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/UserGroups',
+        'plugin.BcCustomContent.Factory/CustomTables',
+        'plugin.BcCustomContent.Factory/CustomContents',
+        'plugin.BaserCore.Factory/Contents',
+    ];
+    /**
      * UsersController
      * @var CustomEntriesController
      */
@@ -48,6 +63,7 @@ class CustomEntriesControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->setFixtureTruncate();
         $this->loadFixtureScenario(InitAppScenario::class);
         $request = $this->getRequest('/baser/admin/bc-custom-content/custom_entries/');
         $request = $this->loginAdmin($request);

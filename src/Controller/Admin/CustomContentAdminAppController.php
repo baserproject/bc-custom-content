@@ -30,7 +30,6 @@ class CustomContentAdminAppController extends BcAdminAppController
      * @return \Cake\Http\Response|void|null
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function beforeRender(EventInterface $event): void
     {
