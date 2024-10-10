@@ -55,8 +55,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
 
     /**
      * Constructor
-     * @checked
-     * @noTodo
      */
     public function __construct()
     {
@@ -70,8 +68,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @return EntityInterface
-     * @checked
-     * @noTodo
      */
     public function getNew(int $tableId)
     {

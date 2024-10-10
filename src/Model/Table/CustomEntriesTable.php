@@ -95,7 +95,7 @@ class CustomEntriesTable extends AppTable
             ->contain(['Contents'])
             ->first();
         /** @var Content $content */
-        if (!$customContent) return false;
+        if(!$customContent) return false;
         $content = $customContent->content;
         return [
             'type' => __d('baser_core', 'カスタムコンテンツ'),
@@ -123,13 +123,13 @@ class CustomEntriesTable extends AppTable
     public function createSearchDetail(CustomEntry $entity): string
     {
         $detail = $entity->name?: '';
-        if (!$this->links) return $detail;
+        if(!$this->links) return $detail;
         foreach($this->links as $link) {
             /** @var CustomLink $link */
-            if (!$link->status) continue;
+            if(!$link->status) continue;
             $controlType = Configure::read('BcCustomContent.fieldTypes.' . $link->custom_field->type . '.controlType');
-            if (!in_array($controlType, ['text', 'textarea'])) continue;
-            if ($detail) $detail .= ',';
+            if(!in_array($controlType, ['text', 'textarea'])) continue;
+            if($detail) $detail .= ',';
             $detail .= $entity->{$link->name};
         }
         return $detail;
@@ -168,7 +168,6 @@ class CustomEntriesTable extends AppTable
      * @param int $tableId
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function setUseTable(int $tableId)
     {
@@ -180,9 +179,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param int $tableId
      * @return string
-     * @noTodo
-     * @checked
-     * @unitTest
      */
     public function getTableName(int $tableId, string $name = ''): string
     {
@@ -217,8 +213,6 @@ class CustomEntriesTable extends AppTable
      * バリデーションを設定する
      *
      * @var array $postData
-     * @checked
-     * @noTodo
      */
     public function setupValidate(array $postData = [])
     {
@@ -259,12 +253,10 @@ class CustomEntriesTable extends AppTable
      * @param CustomLink $link
      * @param array $postData
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateMaxFileSize(Validator $validator, CustomLink $link, array $postData)
     {
-        if (empty($link->custom_field->meta['BcCustomContent']['max_file_size'])) return $validator;
+        if(empty($link->custom_field->meta['BcCustomContent']['max_file_size'])) return $validator;
         $maxFileSize = $link->custom_field->meta['BcCustomContent']['max_file_size'];
         if (isset($postData[$link->name]['error']) && $postData[$link->name]['error'] !== UPLOAD_ERR_NO_FILE) {
             $validator->add($link->name, [
@@ -285,12 +277,10 @@ class CustomEntriesTable extends AppTable
      * @param CustomLink $link
      * @param array $postData
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateFileExt(Validator $validator, CustomLink $link)
     {
-        if (empty($link->custom_field->meta['BcCustomContent']['file_ext'])) return $validator;
+        if(empty($link->custom_field->meta['BcCustomContent']['file_ext'])) return $validator;
         $fileExt = explode(',', $link->custom_field->meta['BcCustomContent']['file_ext']);
         $validator->add($link->name, [
             'fileExt' => [
@@ -308,8 +298,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateEmailConfirm(Validator $validator, CustomLink $link): Validator
     {
@@ -335,8 +323,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateRegex(Validator $validator, CustomLink $link): Validator
     {
@@ -359,8 +345,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateEmail(Validator $validator, CustomLink $link): Validator
     {
@@ -382,8 +366,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateNumber(Validator $validator, CustomLink $link): Validator
     {
@@ -405,8 +387,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateHankaku(Validator $validator, CustomLink $link): Validator
     {
@@ -428,8 +408,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateZenkakuKatakana(Validator $validator, CustomLink $link): Validator
     {
@@ -452,8 +430,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateZenkakuHiragana(Validator $validator, CustomLink $link): Validator
     {
@@ -476,8 +452,6 @@ class CustomEntriesTable extends AppTable
      * @param Validator $validator
      * @param CustomLink $link
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function setValidateDatetime(Validator $validator, CustomLink $link, array $postData): Validator
     {
@@ -510,8 +484,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
-     * @checked
-     * @noTodo
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -530,8 +502,6 @@ class CustomEntriesTable extends AppTable
      * @param EventInterface $event
      * @param ArrayObject $content
      * @param ArrayObject $options
-     * @checked
-     * @noTodo
      */
     public function beforeMarshal(EventInterface $event, ArrayObject $content, ArrayObject $options)
     {
@@ -544,8 +514,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param ArrayObject $content
      * @return ArrayObject
-     * @checked
-     * @noTodo
      */
     public function autoConvert(ArrayObject $content)
     {
@@ -554,7 +522,7 @@ class CustomEntriesTable extends AppTable
             foreach($this->links as $link) {
                 if ($link->name === $key) break;
             }
-            if (empty($link)) continue;
+            if(empty($link)) continue;
             $controlType = CustomContentUtil::getPluginSetting($link->custom_field->type, 'controlType');
             if ($controlType === 'file') continue;
             if (is_array($value)) {
@@ -573,14 +541,12 @@ class CustomEntriesTable extends AppTable
      * @param Query $query
      * @param array $options
      * @return Query
-     * @checked
-     * @noTodo
      */
     public function findAll(Query $query, array $options = []): Query
     {
         return $query->formatResults(function(\Cake\Collection\CollectionInterface $results) {
             return $results->map(function($row) {
-                if (!is_object($row) || !method_exists($row, 'toArray')) return $row;
+                if(!is_object($row) || !method_exists($row, 'toArray')) return $row;
                 return $this->decodeRow($row);
             });
         });
@@ -591,8 +557,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param EntityInterface $row
      * @return EntityInterface
-     * @checked
-     * @noTodo
      */
     public function decodeRow(EntityInterface $row)
     {
@@ -610,8 +574,6 @@ class CustomEntriesTable extends AppTable
      *
      * @param string $string
      * @return bool
-     * @checked
-     * @noTodo
      */
     function isJson(string $string)
     {

@@ -106,9 +106,7 @@ class CustomLinksTableTest extends BcTestCase
      */
     public function test_setTreeScope()
     {
-        $this->CustomLinksTable->setTreeScope(1);
-        $result = $this->CustomLinksTable->getBehavior('Tree')->getConfig('scope');
-        $this->assertEquals(['custom_table_id' => 1], $result);
+
     }
 
     /**

@@ -51,8 +51,6 @@ class CustomContentAppHelper extends Helper
      *
      * @param View $view
      * @param array $config
-     * @checked
-     * @noTodo
      */
     public function __construct(View $view, array $config = [])
     {
@@ -62,8 +60,6 @@ class CustomContentAppHelper extends Helper
 
     /**
      * プラグインのヘルパーを読み込む
-     * @checked
-     * @noTodo
      */
     public function loadPluginHelper(): void
     {
@@ -85,8 +81,6 @@ class CustomContentAppHelper extends Helper
      *
      * @param CustomLink $customLink
      * @return bool
-     * @checked
-     * @noTodo
      */
     public function isEnableField(CustomLink $customLink): bool
     {
@@ -101,8 +95,6 @@ class CustomContentAppHelper extends Helper
      * @param CustomEntry $entry
      * @param bool $base
      * @return mixed|string
-     * @checked
-     * @noTodo
      */
     public function getEntryUrl(CustomEntry $entry, $full = true)
     {
@@ -119,8 +111,6 @@ class CustomContentAppHelper extends Helper
      * @param CustomLink $customLink
      * @param array $options
      * @return string
-     * @checked
-     * @noTodo
      */
     public function searchControl(CustomLink $customLink, array $options = []): string
     {
@@ -139,8 +129,6 @@ class CustomContentAppHelper extends Helper
      *
      * @param CustomLink $customLink
      * @return bool
-     * @checked
-     * @noTodo
      */
     public function isDisplayEntrySearch(CustomLink $customLink, string $type = 'front')
     {

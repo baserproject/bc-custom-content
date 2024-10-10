@@ -23,7 +23,7 @@ use Cake\ORM\TableRegistry;
 /**
  * BcCustomContentViewEventListener
  */
-class BcCustomContentControllerEventListener extends \BaserCore\Event\BcControllerEventListener
+class BcCustomContentViewEventListener extends \BaserCore\Event\BcViewEventListener
 {
 
     /**
@@ -31,7 +31,7 @@ class BcCustomContentControllerEventListener extends \BaserCore\Event\BcControll
      * @var string[]
      */
     public $events = [
-        'startup'
+        'beforeRender'
     ];
 
     /**
@@ -39,10 +39,10 @@ class BcCustomContentControllerEventListener extends \BaserCore\Event\BcControll
      * @checked
      * @noTodo
      */
-    public function startup(Event $event)
+    public function beforeRender(Event $event)
     {
-        $controller = $event->getSubject();
-        if ($controller->getName() === 'Error') return;
+        $view = $event->getSubject();
+        if ($view->getName() === 'Error') return;
         if (!BcUtil::isAdminSystem()) return;
         $this->setAdminMenu();
     }
