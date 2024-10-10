@@ -29,8 +29,8 @@ use BaserCore\Annotation\Checked;
  * @property integer $list_count
  * @property string $list_order
  * @property string $list_direction
- * @property \Cake\I18n\Date $created
- * @property \Cake\I18n\Date $modified
+ * @property FrozenDate $created
+ * @property FrozenDate $modified
  */
 class CustomContent extends Entity
 {

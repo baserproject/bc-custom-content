@@ -24,7 +24,6 @@ use Cake\View\Helper;
  *
  * @property BcAdminFormHelper $BcAdminForm
  */
-#[\AllowDynamicProperties]
 class BcCcWysiwygHelper extends Helper
 {
 
@@ -32,7 +31,7 @@ class BcCcWysiwygHelper extends Helper
      * Helper
      * @var string[]
      */
-    public array $helpers = [
+    public $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form']
     ];
 
@@ -68,10 +67,7 @@ class BcCcWysiwygHelper extends Helper
     {
         $link->name = 'wysiwyg';
         $this->BcAdminForm->unlockField($link->name);
-        $options = [
-            'value' => $link->custom_field->default_value,
-        ];
-        return $this->control($link, $options) . '<br>※ Wysiwyg エディタはリアルタイムでのプレビューは未対応です。保存してから確認してください。';
+        return $this->control($link) . '<br>※ Wysiwyg エディタはリアルタイムでのプレビューは未対応です。保存してから確認してください。';
     }
 
     /**

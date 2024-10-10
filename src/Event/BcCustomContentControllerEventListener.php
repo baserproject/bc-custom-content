@@ -58,7 +58,7 @@ class BcCustomContentControllerEventListener extends \BaserCore\Event\BcControll
         $customContentsTable = \Cake\ORM\TableRegistry::getTableLocator()->get('BcCustomContent.CustomContents');
         $customContents = $customContentsTable->find()
             ->contain(['Contents', 'CustomTables'])
-            ->orderBy(['CustomContents.id'])
+            ->order(['CustomContents.id'])
             ->all();
 
         $navi = [];

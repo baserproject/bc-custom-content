@@ -25,14 +25,12 @@ use BcCustomContent\Service\CustomFieldsService;
 use BcCustomContent\Service\CustomFieldsServiceInterface;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Datasource\EntityInterface;
 
 /**
  * CustomContentAdminHelper
  *
  * @property BcAdminFormHelper $BcAdminForm
  */
-#[\AllowDynamicProperties]
 class CustomContentAdminHelper extends CustomContentAppHelper
 {
 
@@ -40,7 +38,7 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * Helper
      * @var string[]
      */
-    public array $helpers = ['BaserCore.BcBaser', 'BaserCore.BcAdminForm'];
+    public $helpers = ['BaserCore.BcBaser', 'BaserCore.BcAdminForm'];
 
     /**
      * 管理画面のエントリー一覧に表示するかどうか判定する
@@ -49,7 +47,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isDisplayEntryList(CustomLink $customLink)
     {
@@ -64,7 +61,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return int
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getEntryColumnsNum(array $customLinks)
     {
@@ -82,7 +78,7 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param CustomLink $link
      * @return string
      * @checked
-     * @unitTest
+     * @noTodo
      */
     public function label(CustomLink $link, array $options = []): string
     {
@@ -102,7 +98,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getFieldName(CustomLink $link, array $options = [])
     {
@@ -124,18 +119,17 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
-    public function required(CustomLink|EntityInterface $link): string
+    public function required(CustomLink $link): string
     {
         if (!$link->children) {
-            return ($link->required)? $this->BcBaser->getElement('BcCustomContent.required') : '';
+            return ($link->required)? $this->BcBaser->getElement('required') : '';
         } else {
             $hasRequired = false;
             foreach($link->children as $child) {
                 if ($child->required) $hasRequired = true;
             }
-            return ($hasRequired)? $this->BcBaser->getElement('BcCustomContent.required') : '';
+            return ($hasRequired)? $this->BcBaser->getElement('required') : '';
         }
     }
 
@@ -224,7 +218,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function description(CustomLink $link)
     {
@@ -244,7 +237,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function beforeHead(CustomLink $link): string
     {
@@ -261,7 +253,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function afterHead(CustomLink $link): string
     {
@@ -278,7 +269,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function attention(CustomLink $link): string
     {
@@ -300,7 +290,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return string
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getEntryIndexTitle(CustomTable $table, CustomEntry $entry)
     {
@@ -340,7 +329,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isEnabledMoveUpEntry(\ArrayObject $entries, CustomEntry $currentEntry)
     {
@@ -364,7 +352,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isEnabledMoveDownEntry(\ArrayObject $entries, CustomEntry $currentEntry)
     {
@@ -387,7 +374,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isAllowPublishEntry(CustomEntry $entry)
     {
@@ -401,7 +387,6 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @return \Cake\ORM\Query
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getFields()
     {

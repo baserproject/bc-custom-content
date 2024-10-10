@@ -26,7 +26,7 @@ class CustomContentsScenario implements FixtureScenarioInterface
     /**
      * load
      */
-    public function load(...$args): mixed
+    public function load(...$args)
     {
         CustomContentFactory::make([
             'id' => 1,
@@ -100,6 +100,5 @@ class CustomContentsScenario implements FixtureScenarioInterface
             'layout_template' => 'default',
             'status' => true
         ])->persist();
-        return null;
     }
 }

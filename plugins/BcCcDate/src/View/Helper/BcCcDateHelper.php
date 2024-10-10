@@ -25,7 +25,6 @@ use Cake\View\Helper;
  * @property BcAdminFormHelper $BcAdminForm
  * @property BcTimeHelper $BcTime
  */
-#[\AllowDynamicProperties]
 class BcCcDateHelper extends Helper
 {
 
@@ -33,7 +32,7 @@ class BcCcDateHelper extends Helper
      * Helper
      * @var string[]
      */
-    public array $helpers = [
+    public $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form'],
         'BaserCore.BcTime'
     ];
@@ -50,7 +49,7 @@ class BcCcDateHelper extends Helper
     {
         $field = $link->custom_field;
         $options = array_merge([
-            'type' => 'datePicker',
+            'type' => 'date',
             'size' => $field->size
         ], $options);
         return $this->BcAdminForm->control($link->name, $options);

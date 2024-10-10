@@ -9,14 +9,15 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Test\TestCase\Model\Table;
+namespace BcCustomContent\Test\TestCase\Service;
+
 
 use BaserCore\TestSuite\BcTestCase;
 
 /**
- * CustomContentsTableTest
+ * CustomFieldsAdminServiceTest
  */
-class CustomContentsTableTest extends BcTestCase
+class CustomFieldsAdminServiceTest extends BcTestCase
 {
 
     /**

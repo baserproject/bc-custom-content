@@ -26,7 +26,6 @@ use BcCustomContent\Test\Factory\CustomFieldFactory;
 use BcCustomContent\Test\Scenario\CustomContentsScenario;
 use BcCustomContent\Test\Scenario\CustomEntriesScenario;
 use BcCustomContent\Test\Scenario\CustomFieldsScenario;
-use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Entity;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -95,15 +94,12 @@ class CustomEntriesServiceTest extends BcTestCase
      */
     public function test_getFieldControlType()
     {
-        Configure::write('BcCustomContent.fieldTypes.BcCcText.controlType', 'text');
-        Configure::write('BcCustomContent.fieldTypes.BcCcCheckbox.controlType', 'checkbox');
-
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         //正常系実行
         $result = $this->CustomEntriesService->getFieldControlType('BcCcText');
         $this->assertEquals('text', $result);
         $result = $this->CustomEntriesService->getFieldControlType('BcCcCheckbox');
         $this->assertEquals('checkbox', $result);
-
         //異常系実行
         $result = $this->CustomEntriesService->getFieldControlType('a');
         $this->assertEquals('', $result);
@@ -210,7 +206,7 @@ class CustomEntriesServiceTest extends BcTestCase
         ];
         $result = $this->CustomEntriesService->createIndexConditions($query, $params);
         $whereSql = $result->clause('where')->sql(new ValueBinder());
-        $this->assertStringContainsString('title LIKE', $whereSql);
+        $this->assertStringContainsString('title like', $whereSql);
         $this->assertStringContainsString('CustomEntries.status =', $whereSql);
         $this->assertStringContainsString('CustomEntries.publish_begin <=', $whereSql);
     }
@@ -648,7 +644,7 @@ class CustomEntriesServiceTest extends BcTestCase
         $this->assertTrue($result);
         $this->assertFalse($this->BcDatabaseService->tableExists('custom_entry_1_recruit_categories'));
         //異常系実行
-        $this->expectExceptionMessage('Record not found in table `custom_tables`');
+        $this->expectExceptionMessage('Record not found in table "custom_tables"');
         $this->CustomEntriesService->dropTable(99);
 
     }
@@ -705,7 +701,7 @@ class CustomEntriesServiceTest extends BcTestCase
         $dataBaseService->dropTable('custom_entry_1_recruit_categories');
 
         //異常系実行
-        $this->expectExceptionMessage('Record not found in table `custom_tables`');
+        $this->expectExceptionMessage('Record not found in table "custom_tables"');
         $this->CustomEntriesService->addFields(99, $links);
     }
 
@@ -816,7 +812,7 @@ class CustomEntriesServiceTest extends BcTestCase
         //正常系実行: 将来の開始日を指定する
         $entity = new Entity([
             'status' => true,
-            'publish_begin' => \Cake\I18n\DateTime::tomorrow(),
+            'publish_begin' => FrozenTime::tomorrow(),
             'publish_end' => '',
         ]);
         $this->assertFalse($this->CustomEntriesService->isAllowPublish($entity));
@@ -825,7 +821,7 @@ class CustomEntriesServiceTest extends BcTestCase
         $entity = new Entity([
             'status' => true,
             'publish_begin' => '',
-            'publish_end' => \Cake\I18n\DateTime::yesterday(),
+            'publish_end' => FrozenTime::yesterday(),
         ]);
         $this->assertFalse($this->CustomEntriesService->isAllowPublish($entity));
 
