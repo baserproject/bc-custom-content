@@ -85,7 +85,7 @@ class CustomFieldsScenario implements FixtureScenarioInterface
             'id' => 2,
             'title' => 'この仕事の特徴',
             'name' => 'feature',
-            'type' => 'group',
+            'type' => 'BcCcMultiple',
             'status' => 1,
             'default_value' => '',
             'validate' => '',

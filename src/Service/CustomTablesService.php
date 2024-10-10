@@ -36,9 +36,6 @@ class CustomTablesService implements CustomTablesServiceInterface
 
     /**
      * Constructor
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function __construct()
     {
@@ -49,10 +46,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      * カスタムテーブルの初期値となるエンティティを取得する
      *
      * @return EntityInterface
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getNew()
     {
@@ -67,10 +60,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param int $id
      * @return EntityInterface
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function get(int $id, $options = [])
     {
@@ -82,10 +71,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param int $tableId
      * @return bool
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function hasCustomContent(int $tableId)
     {
@@ -100,10 +85,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param int $tableId
      * @return EntityInterface
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getWithContentAndLinks(int $tableId)
     {
@@ -124,10 +105,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param int $tableId
      * @return EntityInterface
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getWithLinks(int $tableId)
     {
@@ -145,9 +122,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param array $queryParams
      * @return \Cake\ORM\Query
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getIndex(array $queryParams)
     {
@@ -166,9 +140,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param array $postData
      * @return EntityInterface
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function create(array $postData)
     {
@@ -198,9 +169,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      * @param EntityInterface $entity
      * @param array $postData
      * @return EntityInterface
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function update(EntityInterface $entity, array $postData)
     {
@@ -217,6 +185,14 @@ class CustomTablesService implements CustomTablesServiceInterface
             $entity = $this->CustomTables->patchEntity($entity, $postData);
             $entity = $this->CustomTables->saveOrFail($entity);
 
+            // 関連フィードの削除されたフィールドの反映、並び順の更新を実行
+            /** @var CustomLinksServiceInterface $customEntriesService */
+            $customLinksService = $this->getService(CustomLinksServiceInterface::class);
+            $customLinksService->updateFields(
+                $entity->id,
+                $entity->custom_links
+            );
+
             /** @var CustomEntriesService $customEntriesService */
             $customEntriesService = $this->getService(CustomEntriesServiceInterface::class);
 
@@ -225,14 +201,6 @@ class CustomTablesService implements CustomTablesServiceInterface
                 $this->CustomTables->getConnection()->rollback();
                 throw new BcException(__d('baser_core', 'データベースに問題があります。エントリー保存用テーブルのリネーム処理に失敗しました。'));
             }
-
-            // 関連フィードの削除されたフィールドの反映、並び順の更新を実行
-            /** @var CustomLinksServiceInterface $customEntriesService */
-            $customLinksService = $this->getService(CustomLinksServiceInterface::class);
-            $customLinksService->updateFields(
-                $entity->id,
-                $entity->custom_links
-            );
 
             // フィールドの追加処理
             $customEntriesService->addFields($entity->id, $entity->custom_links);
@@ -250,9 +218,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      *
      * @param int $id
      * @return bool
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function delete(int $id)
     {
@@ -276,9 +241,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      * カスタムテーブルのリストを取得する
      *
      * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getList(array $options = [])
     {
@@ -295,9 +257,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      * @param string $field
      * @param array $options
      * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getControlSource(string $field, array $options = []): array
     {
@@ -318,9 +277,6 @@ class CustomTablesService implements CustomTablesServiceInterface
      * カスタムコンテンツIDを取得する
      * @param int $id
      * @return false|mixed
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getCustomContentId(int $id)
     {

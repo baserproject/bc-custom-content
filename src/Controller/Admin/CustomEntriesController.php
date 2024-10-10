@@ -39,8 +39,7 @@ class CustomEntriesController extends CustomContentAdminAppController
      */
     public function beforeFilter(EventInterface $event)
     {
-        $response = parent::beforeFilter($event);
-        if($response) return $response;
+        parent::beforeFilter($event);
 
         $tableId = $this->request->getParam('pass.0');
         if (!$tableId) {
