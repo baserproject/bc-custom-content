@@ -11,6 +11,7 @@
 
 namespace BcCustomContent\Model\Table;
 
+use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Table\AppTable;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -24,6 +25,12 @@ use Cake\Validation\Validator;
  */
 class CustomContentsTable extends AppTable
 {
+
+    /**
+     * Trait
+     */
+    use BcEventDispatcherTrait;
+
     /**
      * Initialize
      *

@@ -95,14 +95,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         return new CustomEntry($default, ['source' => 'BcCustomContent.CustomEntries']);
     }
 
-    /**
-     *
-     * @param string $type
-     * @return string
-     * @notodo
-     * @checked
-     * @unitTest
-     */
     public function getFieldControlType(string $type)
     {
         return Configure::read("BcCustomContent.fieldTypes.$type.controlType");
@@ -116,7 +108,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param int $tableId
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function setup(int $tableId, array $postData = [])
     {
@@ -127,9 +118,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * カスタムエントリーの一覧を取得する
      *
      * @return \Cake\ORM\Query
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function getIndex(array $queryParams = [])
     {
@@ -203,9 +191,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param Query $query
      * @param array $params
      * @return Query
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function createIndexConditions(Query $query, array $params)
     {
@@ -294,9 +279,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param array $options
      * @return array
-     * @checked
-     * @notodo
-     * @unitTest
      */
     public function getList(array $options = [])
     {
@@ -319,9 +301,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param string $order
      * @param string $direction
      * @return string
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function createOrder(string $order, string $direction)
     {
@@ -335,9 +314,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * カスタムエントリーの単一データを取得する
      *
      * @return EntityInterface
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function get($id, array $options = [])
     {
@@ -381,9 +357,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param array $options
      * @return array|string[]
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function createSelect(array $options)
     {
@@ -411,9 +384,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param array $postData
      * @return EntityInterface
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function create(array $postData)
     {
@@ -428,9 +398,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param EntityInterface $entity
      * @param array $postData
      * @return EntityInterface
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function update(EntityInterface $entity, array $postData)
     {
@@ -444,9 +411,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $id
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function delete(int $id)
     {
@@ -461,9 +425,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param string $fieldName
      * @param string $type
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function addField(int $tableId, string $fieldName, string $type): bool
     {
@@ -478,9 +439,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param string $oldName
      * @param string $newName
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function renameField(int $tableId, string $oldName, string $newName): bool
     {
@@ -494,9 +452,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param int $tableId
      * @param string $fieldName
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function removeField(int $tableId, string $fieldName)
     {
@@ -509,9 +464,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function createTable(int $tableId): bool
     {
@@ -544,9 +496,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param int $tableId
      * @param string $oldName
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function renameTable(int $tableId, string $oldName)
     {
@@ -566,9 +515,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function dropTable(int $tableId)
     {
@@ -581,9 +527,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @param array $fields
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function addFields(int $tableId, array $links)
     {
@@ -602,9 +545,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param string $field
      * @return array
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function getControlSource(string $field, array $options = []): array
     {
@@ -625,9 +565,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int|null $selfId
      * @return array
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function getParentTargetList($selfId, array $options = [])
     {
@@ -656,9 +593,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param EntityInterface $entity
      * @return bool
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function isAllowPublish(EntityInterface $entity)
     {
@@ -679,9 +613,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param EntityInterface $entity
      * @param bool $full
      * @return string
-     * @notodo
-     * @checked
-     * @unitTest
      */
     public function getUrl(Content $content, EntityInterface $entity, bool $full = true)
     {
@@ -705,7 +636,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @return array $data
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function autoConvert(array $data): array
     {
@@ -731,9 +661,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $id
      * @return mixed
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function moveUp(int $id)
     {
@@ -745,9 +672,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $id
      * @return mixed
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function moveDown(int $id)
     {

@@ -15,6 +15,6 @@ return [
     'description' => __d('baser_core', '複数設置可能で独自フィールドが定義できるコンテンツ'),
     'author' => 'baserCMS User Community',
     'url' => 'https://basercms.net',
-    'adminLink' => ['plugin' => 'BcCustomContent', 'controller' => 'CustomTables', 'action' => 'index'],
+    'adminLink' => ['plugin' => 'bc-custom-content', 'controller' => 'custom_configs', 'action' => 'index'],
     'installMessage' => ''
 ];

@@ -40,9 +40,6 @@ class CustomTablesAdminService extends CustomTablesService implements CustomTabl
      *
      * @param EntityInterface $entity
      * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getViewVarsForEdit(EntityInterface $entity)
     {

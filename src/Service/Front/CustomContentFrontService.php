@@ -57,9 +57,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
 
     /**
      * Constructor
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function __construct()
     {
@@ -73,9 +70,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * @param int $entityId
      * @param array $options
      * @return mixed
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getCustomContent(int $entityId)
     {
@@ -89,10 +83,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @param int $customTableId
      * @return mixed
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getCustomEntries(CustomContent $customContent, array $queryParams = [])
     {
@@ -114,9 +104,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * @param EntityInterface $customContent
      * @param ResultSetInterface $customEntries
      * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getViewVarsForIndex(EntityInterface $customContent, ResultSetInterface $customEntries): array
     {
@@ -159,9 +146,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * @param EntityInterface $customContent
      * @param int $entryId
      * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getViewVarsForView(EntityInterface $customContent, mixed $entryId, bool $preview = false)
     {
@@ -193,9 +177,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @param CustomContent $customContent
      * @return string
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getIndexTemplate(CustomContent $customContent): string
     {
@@ -207,9 +188,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @param CustomContent $customContent
      * @return string
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getViewTemplate(CustomContent $customContent): string
     {
@@ -220,9 +198,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * カスタムエントリーの詳細ページ用のプレビューのセットアップを行う
      *
      * @param Controller $controller
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function setupPreviewForView(Controller $controller): void
     {
@@ -247,9 +222,6 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * カスタムエントリーの詳細ページ用のプレビューのセットアップを行う
      *
      * @param Controller $controller
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function setupPreviewForIndex(Controller $controller): void
     {

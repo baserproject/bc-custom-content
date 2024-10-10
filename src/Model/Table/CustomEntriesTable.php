@@ -12,6 +12,7 @@
 namespace BcCustomContent\Model\Table;
 
 use ArrayObject;
+use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Entity\Content;
 use BaserCore\Model\Table\AppTable;
 use BaserCore\Annotation\UnitTest;
@@ -45,6 +46,7 @@ class CustomEntriesTable extends AppTable
     /**
      * Trait
      */
+    use BcEventDispatcherTrait;
     use BcContainerTrait;
 
     /**
@@ -176,8 +178,7 @@ class CustomEntriesTable extends AppTable
             $customTablesTable = TableRegistry::getTableLocator()->get('BcCustomContent.CustomTables');
             $name = $customTablesTable->get($tableId)->name;
         }
-        $prefix = BcUtil::getCurrentDbConfig()['prefix'];
-        return $prefix . 'custom_entry_' . $tableId . '_' . $name;
+        return 'custom_entry_' . $tableId . '_' . $name;
     }
 
     /**

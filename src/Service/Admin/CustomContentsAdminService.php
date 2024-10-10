@@ -29,9 +29,6 @@ class CustomContentsAdminService extends CustomContentsService implements Custom
      *
      * @param EntityInterface $entity
      * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getViewVarsForEdit(EntityInterface $entity)
     {
