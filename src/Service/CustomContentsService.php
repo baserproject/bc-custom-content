@@ -21,7 +21,6 @@ use Cake\Core\Plugin;
 use Cake\Datasource\EntityInterface;
 use Cake\Filesystem\Folder;
 use Cake\ORM\Query;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -39,12 +38,6 @@ class CustomContentsService implements CustomContentsServiceInterface
      * Trait
      */
     use BcContainerTrait;
-
-    /**
-     * CustomContents Table
-     * @var CustomContentsTable|Table
-     */
-    public CustomContentsTable|Table $CustomContents;
 
     /**
      * Constructor
@@ -237,7 +230,7 @@ class CustomContentsService implements CustomContentsServiceInterface
      */
     public function getListOrders(int $tableId): array
     {
-        $list = ['id' => 'No', 'published' => __d('baser_core', '公開日付'), 'created' => __d('baser_core', '登録日'), 'modified' => __d('baser_core', '編集日')];
+        $list = ['id' => 'No', 'created' => __d('baser_core', '登録日'), 'modified' => __d('baser_core', '編集日')];
         if(!$tableId) return $list;
         $table = $this->CustomContents->CustomTables->get($tableId, ['contain' => [
             'CustomLinks' => ['CustomFields']
