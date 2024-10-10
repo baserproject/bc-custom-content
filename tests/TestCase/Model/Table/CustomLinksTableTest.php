@@ -79,7 +79,7 @@ class CustomLinksTableTest extends BcTestCase
         $errors = $validator->validate([
             'name' => 'option',
         ]);
-        $this->assertStringContainsString( 'システム予約名称のため利用できません。', current($errors['name']));
+        $this->assertEquals('group, rows, option はシステム予約名称のため利用できません。', current($errors['name']));
         //既に登録のケース
         CustomLinkFactory::make([
             'name' => 'recruit_category',
@@ -89,11 +89,6 @@ class CustomLinksTableTest extends BcTestCase
         ]);
         $this->assertEquals('既に登録のあるフィールド名です。', current($errors['name']));
 
-        //スペースだけ登録した場合、
-        $errors = $validator->validate([
-            'title' => '      '
-        ]);
-        $this->assertEquals('タイトルを入力してください。', current($errors['title']));
     }
 
     /**

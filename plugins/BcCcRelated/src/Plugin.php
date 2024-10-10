@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCcDateTime;
+namespace BcCcRelated;
 
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -20,7 +20,7 @@ use BaserCore\BcPlugin;
 /**
  * Plugin
  */
-class BcCcDateTimePlugin extends BcPlugin
+class Plugin extends BcPlugin
 {
 
     /**
