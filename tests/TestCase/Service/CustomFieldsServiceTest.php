@@ -215,7 +215,6 @@ class CustomFieldsServiceTest extends BcTestCase
      */
     public function test_getFieldTypes()
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         //対象メソッドをコール
         $rs = $this->CustomFieldsService->getFieldTypes();
         //戻る値を確認
@@ -254,7 +253,6 @@ class CustomFieldsServiceTest extends BcTestCase
      */
     public function test_getControlSource()
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         //$field == 'field_type'
         $rs = $this->CustomFieldsService->getControlSource('field_type');
         $this->assertArrayHasKey('基本', $rs);

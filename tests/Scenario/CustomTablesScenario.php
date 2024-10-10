@@ -11,7 +11,8 @@
 
 namespace BcCustomContent\Test\Scenario;
 
-use BaserCore\Test\Factory\PluginFactory;
+use BcCustomContent\Test\Factory\CustomFieldFactory;
+use BcCustomContent\Test\Factory\CustomLinkFactory;
 use BcCustomContent\Test\Factory\CustomTableFactory;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
@@ -28,8 +29,8 @@ class CustomTablesScenario implements FixtureScenarioInterface
     public function load(...$args)
     {
         CustomTableFactory::make([
-            'id' => 3,
-            'type' => 3,
+            'id' => 1,
+            'type' => 1,
             'name' => 'recruit',
             'title' => '求人情報',
             'display_field' => 'title',

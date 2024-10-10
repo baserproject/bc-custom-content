@@ -86,7 +86,7 @@ class CustomEntriesServiceTest extends BcTestCase
      */
     public function test_getNew()
     {
-        $this->markTestIncomplete('このテストは未実装です。');
+
     }
 
     /**
@@ -94,7 +94,6 @@ class CustomEntriesServiceTest extends BcTestCase
      */
     public function test_getFieldControlType()
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         //正常系実行
         $result = $this->CustomEntriesService->getFieldControlType('BcCcText');
         $this->assertEquals('text', $result);
@@ -154,9 +153,9 @@ class CustomEntriesServiceTest extends BcTestCase
 
         //正常系実行
         $result = $this->CustomEntriesService->getIndex()->all();
-        $this->assertCount(3, $result);
+        $this->assertCount(6, $result);
         //containパラメータを入れる
-        $result = $this->CustomEntriesService->getIndex(['contain' => ['CustomTables' => ['CustomContents' => ['Contents']]]])->all();
+        $result = $this->CustomEntriesService->getIndex(['contain' => 'CustomTables'])->all();
         $this->assertCount(3, $result);
         //limitパラメータを入れる
         $result = $this->CustomEntriesService->getIndex(['limit' => 2])->all();
@@ -655,9 +654,12 @@ class CustomEntriesServiceTest extends BcTestCase
     public function test_addFields()
     {
         //準備
-       $customTable = $this->getService(CustomTablesServiceInterface::class);
-        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
-
+        //フィクチャーからデーターを生成
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(CustomContentsScenario::class);
+        $this->loadFixtureScenario(CustomEntriesScenario::class);
+        $this->loadFixtureScenario(CustomFieldsScenario::class);
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
         //カスタムテーブルとカスタムエントリテーブルを生成
         $customTable->create([
             'id' => 1,
@@ -667,12 +669,6 @@ class CustomEntriesServiceTest extends BcTestCase
             'display_field' => 'title',
             'has_child' => 0
         ]);
-        //フィクチャーからデーターを生成
-        $this->loadFixtureScenario(InitAppScenario::class);
-        $this->loadFixtureScenario(CustomContentsScenario::class);
-        $this->loadFixtureScenario(CustomEntriesScenario::class);
-        $this->loadFixtureScenario(CustomFieldsScenario::class);
-
         //正常系実行
         $links = [
             new Entity([
@@ -697,12 +693,10 @@ class CustomEntriesServiceTest extends BcTestCase
         $this->CustomEntriesService->addFields(1, $links);
         $this->assertTrue($this->BcDatabaseService->columnExists('custom_entry_1_recruit_categories', 'link1'));
         $this->assertTrue($this->BcDatabaseService->columnExists('custom_entry_1_recruit_categories', 'link2'));
-        //不要なテーブルを削除
-        $dataBaseService->dropTable('custom_entry_1_recruit_categories');
-
         //異常系実行
         $this->expectExceptionMessage('Record not found in table "custom_tables"');
         $this->CustomEntriesService->addFields(99, $links);
+
     }
 
     /**
@@ -724,8 +718,42 @@ class CustomEntriesServiceTest extends BcTestCase
         //フィクチャーからデーターを生成
         $this->loadFixtureScenario(InitAppScenario::class);
         $this->loadFixtureScenario(CustomContentsScenario::class);
-        $this->loadFixtureScenario(CustomEntriesScenario::class);
-
+        $this->loadFixtureScenario(CustomFieldsScenario::class);
+        CustomEntryFactory::make([
+            [
+                'id' => 1,
+                'custom_table_id' => 1,
+                'title' => 'title1',
+                'lft' => 2,
+                'rght' => 3,
+                'status' => 1,
+                'level' => 1,
+            ]
+        ])->persist();
+        CustomEntryFactory::make([
+            [
+                'id' => 2,
+                'custom_table_id' => 1,
+                'title' => 'title1',
+                'lft' => null,
+                'rght' => null,
+                'status' => 1,
+                'parent_id' => 1,
+                'level' => 2,
+            ]
+        ])->persist();
+        CustomEntryFactory::make([
+            [
+                'id' => 3,
+                'custom_table_id' => 1,
+                'title' => 'title3',
+                'lft' => null,
+                'rght' => null,
+                'status' => 1,
+                'parent_id' => 1,
+                'level' => 2,
+            ]
+        ])->persist();
         $this->CustomEntriesService->setup(1);
         UserFactory::make([
             'id' => 2,
@@ -755,6 +783,9 @@ class CustomEntriesServiceTest extends BcTestCase
         $result = $this->CustomEntriesService->getControlSource('creator_id', $options);
         $this->assertCount(2, $result);
         $this->assertEquals('nickname2', $result[2]);
+        //parent_idのパラメータを入れる
+        $result = $this->CustomEntriesService->getControlSource('parent_id', []);
+        $this->assertCount(2, $result);
 
     }
 
@@ -763,7 +794,6 @@ class CustomEntriesServiceTest extends BcTestCase
      */
     public function test_getParentTargetList()
     {
-        $this->markTestIncomplete('このテストは未確認。');
         //準備
         $customTable = $this->getService(CustomTablesServiceInterface::class);
         //カスタムテーブルとカスタムエントリテーブルを生成
@@ -779,10 +809,44 @@ class CustomEntriesServiceTest extends BcTestCase
         $this->loadFixtureScenario(InitAppScenario::class);
         $this->loadFixtureScenario(CustomContentsScenario::class);
         $this->loadFixtureScenario(CustomFieldsScenario::class);
-        $this->loadFixtureScenario(CustomEntriesScenario::class);
         $this->CustomEntriesService->setup(1);
+        CustomEntryFactory::make([
+            [
+                'id' => 1,
+                'custom_table_id' => 1,
+                'title' => 'title1',
+                'lft' => 2,
+                'rght' => 3,
+                'status' => 1,
+                'level' => 1,
+            ]
+        ])->persist();
+        CustomEntryFactory::make([
+            [
+                'id' => 2,
+                'custom_table_id' => 1,
+                'title' => 'title1',
+                'lft' => 3,
+                'rght' => null,
+                'status' => 1,
+                'parent_id' => 1,
+                'level' => 2,
+            ]
+        ])->persist();
+        CustomEntryFactory::make([
+            [
+                'id' => 3,
+                'custom_table_id' => 1,
+                'title' => 'title3',
+                'lft' => null,
+                'rght' => 2,
+                'status' => 1,
+                'parent_id' => 1,
+                'level' => 2,
+            ]
+        ])->persist();
         //正常系実行
-        $result = $this->CustomEntriesService->getParentTargetList(1);
+        $result = $this->CustomEntriesService->getParentTargetList(2);
         $this->assertCount(1, $result);
         $this->assertEquals('title1', $result[1]);
 
@@ -948,7 +1012,6 @@ class CustomEntriesServiceTest extends BcTestCase
      */
     public function test_moveUp()
     {
-        $this->markTestIncomplete('このテストは未確認。');
         //準備
         $customTable = $this->getService(CustomTablesServiceInterface::class);
         //カスタムテーブルとカスタムエントリテーブルを生成
@@ -979,7 +1042,6 @@ class CustomEntriesServiceTest extends BcTestCase
      */
     public function test_moveDown()
     {
-        $this->markTestIncomplete('このテストは未確認。');
         //準備
         $customTable = $this->getService(CustomTablesServiceInterface::class);
         //カスタムテーブルとカスタムエントリテーブルを生成

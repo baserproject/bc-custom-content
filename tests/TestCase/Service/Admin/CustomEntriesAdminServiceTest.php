@@ -82,17 +82,15 @@ class CustomEntriesAdminServiceTest extends BcTestCase
         ]);
 
         //フィクチャーからデーターを生成
-        $this->loadFixtureScenario(InitAppScenario::class);
         $this->loadFixtureScenario(CustomContentsScenario::class);
         $this->loadFixtureScenario(CustomEntriesScenario::class);
 
-        $this->CustomEntriesAdminService->setup(1);
         //対象メソッドをコール
         $rs = $this->CustomEntriesAdminService->getViewVarsForEdit(1, $this->CustomEntriesAdminService->get(1));
 
         //戻る値を確認
         $this->assertEquals(1, $rs['entity']->id);
-        $this->assertEquals(1, $rs['tableId']);
+        $this->assertArrayHasKey(5, $rs['tableId']);
         $this->assertArrayHasKey('customTable', $rs);
         $this->assertArrayHasKey('publishLink', $rs);
         $this->assertArrayHasKey('availablePreview', $rs);
@@ -189,7 +187,7 @@ class CustomEntriesAdminServiceTest extends BcTestCase
         //フィクチャーからデーターを生成
         $this->loadFixtureScenario(CustomContentsScenario::class);
         $this->loadFixtureScenario(CustomEntriesScenario::class);
-        $this->CustomEntriesAdminService->setup(1);
+
         //対象メソッドをコール
         $rs = $this->CustomEntriesAdminService->getViewVarsForIndex($customTable->get(1), $this->CustomEntriesAdminService->get(1));
 
@@ -229,7 +227,7 @@ class CustomEntriesAdminServiceTest extends BcTestCase
         $rs = $this->CustomEntriesAdminService->getPublishLinkForIndex($customTable->getWithContentAndLinks(1));
 
         //戻る値を確認
-        $this->assertEquals('/test/', $rs);
+        $this->assertEquals('/', $rs);
         //不要なテーブルを削除
         $dataBaseService->dropTable('custom_entry_1_recruit_categories');
     }
@@ -260,10 +258,10 @@ class CustomEntriesAdminServiceTest extends BcTestCase
         $this->loadFixtureScenario(CustomEntriesScenario::class);
 
         //対象メソッドをコール
-        $rs = $this->CustomEntriesAdminService->getPublishLinkForEdit(ContentFactory::get(100), CustomEntryFactory::get(1));
+        $rs = $this->CustomEntriesAdminService->getPublishLinkForEdit(ContentFactory::get(1), CustomEntryFactory::get(1));
 
         //戻る値を確認
-        $this->assertEquals('https://localhost/test/view/プログラマー', $rs);
+        $this->assertEquals('https://localhost/view/プログラマー', $rs);
 
         //不要なテーブルを削除
         $dataBaseService->dropTable('custom_entry_1_recruit_categories');

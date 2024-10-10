@@ -43,13 +43,11 @@ class Plugin extends BcPlugin
      */
     public function install($options = []): bool
     {
-        $options = array_merge([
-            'connection' => 'default'
-        ], $options);
+        // ここに必要なインストール処理を記述
         $result = parent::install($options);
-        $table = TableRegistry::getTableLocator()->get('BcCustomContent.CustomEntries', ['connectionName' => $options['connection']]);
+        $table = TableRegistry::getTableLocator()->get('BcCustomContent.CustomEntries');
         $table->setUp(1);
-        $this->updateDateNow('BcCustomContent.CustomEntries', ['published'], [], $options);
+        $this->updateDateNow('BcCustomContent.CustomEntries', ['published']);
         return $result;
     }
 
