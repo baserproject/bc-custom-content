@@ -13,7 +13,8 @@ namespace BcCustomContent\View\Helper;
 
 use BaserCore\Utility\BcUtil;
 use BaserCore\View\Helper\BcAdminFormHelper;
-use BcCustomContent\Model\Entity\CustomEntry;use BcCustomContent\Model\Entity\CustomField;
+use BcCustomContent\Model\Entity\CustomEntry;
+use BcCustomContent\Model\Entity\CustomField;
 use BcCustomContent\Model\Entity\CustomLink;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -24,6 +25,7 @@ use BcCustomContent\Service\CustomFieldsService;
 use BcCustomContent\Service\CustomFieldsServiceInterface;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
+use Cake\Datasource\EntityInterface;
 
 /**
  * CustomContentAdminHelper
@@ -37,13 +39,16 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * Helper
      * @var string[]
      */
-    public $helpers = ['BaserCore.BcBaser', 'BaserCore.BcAdminForm'];
+    public array $helpers = ['BaserCore.BcBaser', 'BaserCore.BcAdminForm'];
 
     /**
      * 管理画面のエントリー一覧に表示するかどうか判定する
      *
      * @param CustomLink $customLink
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isDisplayEntryList(CustomLink $customLink)
     {
@@ -56,14 +61,16 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param array $customLinks
      * @return int
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getEntryColumnsNum(array $customLinks)
     {
         $num = 6;   // id / title / status / published + creator_id / created + modified / アクション
-        foreach($customLinks as $customLink)
-        {
+        foreach($customLinks as $customLink) {
             /** @var CustomLink $customLink */
-            if($this->isDisplayEntryList($customLink)) $num++;
+            if ($this->isDisplayEntryList($customLink)) $num++;
         }
         return $num;
     }
@@ -73,11 +80,13 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @unitTest
      */
     public function label(CustomLink $link, array $options = []): string
     {
         // TODO ucmitz label をプラグインに移行する
-        if($link->custom_field->type === 'BcCcTextarea' && $link->parent_id) {
+        if ($link->custom_field->type === 'BcCcTextarea' && $link->parent_id) {
             return $this->BcAdminForm->label($this->getFieldName($link, $options), $link->title, $options) . '<br>';
         } else {
             return $this->BcAdminForm->label($this->getFieldName($link, $options), $link->title, $options);
@@ -90,6 +99,9 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param CustomLink $link
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getFieldName(CustomLink $link, array $options = [])
     {
@@ -97,7 +109,7 @@ class CustomContentAdminHelper extends CustomContentAppHelper
             'fieldName' => null,
         ], $options);
 
-        if($options['fieldName']) {
+        if ($options['fieldName']) {
             return $options['fieldName'];
         } else {
             return $link->name;
@@ -109,17 +121,20 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function required(CustomLink $link): string
+    public function required(CustomLink|EntityInterface $link): string
     {
-        if(!$link->children) {
-            return ($link->required)? $this->BcBaser->getElement('required') : '';
+        if (!$link->children) {
+            return ($link->required)? $this->BcBaser->getElement('BcCustomContent.required') : '';
         } else {
             $hasRequired = false;
             foreach($link->children as $child) {
-                if($child->required) $hasRequired = true;
+                if ($child->required) $hasRequired = true;
             }
-            return ($hasRequired)? $this->BcBaser->getElement('required') : '';
+            return ($hasRequired)? $this->BcBaser->getElement('BcCustomContent.required') : '';
         }
     }
 
@@ -129,13 +144,15 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param CustomLink $link
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
      */
     public function control(CustomLink $customLink, array $options = []): string
     {
         $options = array_merge_recursive(BcUtil::pairToAssoc($customLink->options), [
         ], $options);
 
-        if($customLink->class) $options['class'] = $customLink->class;
+        if ($customLink->class) $options['class'] = $customLink->class;
 
         if (!$customLink->custom_field) return '';
         /** @var CustomField $field */
@@ -159,10 +176,12 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param CustomField $field
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
      */
     public function preview(string $fieldName, string $type, CustomField $field): string
     {
-       if (method_exists($this->{$type}, 'preview')) {
+        if (method_exists($this->{$type}, 'preview')) {
             return $this->{$type}->preview(new CustomLink([
                 'name' => $fieldName,
                 'custom_field' => $field
@@ -177,6 +196,8 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param CustomLink $link
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
      */
     public function error(CustomLink $link, $options = []): string
     {
@@ -186,7 +207,7 @@ class CustomContentAdminHelper extends CustomContentAppHelper
             'index' => null
         ], $options);
 
-        if($options['parent'] && $options['parent']->group_valid) {
+        if ($options['parent'] && $options['parent']->group_valid) {
             return '';
         } else {
             return $this->BcAdminForm->error($this->getFieldName($link, $options));
@@ -200,13 +221,16 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function description(CustomLink $link)
     {
         if ($link->description) {
             return '<i class="bca-icon--question-circle bca-help"></i>' .
                 '<div class="bca-helptext">' .
-                __d('baser_core', $link->description) .
+                $link->description .
                 '</div>';
         }
         return '';
@@ -217,6 +241,9 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeHead(CustomLink $link): string
     {
@@ -231,6 +258,9 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function afterHead(CustomLink $link): string
     {
@@ -245,6 +275,9 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function attention(CustomLink $link): string
     {
@@ -264,14 +297,17 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param CustomTable $table
      * @param CustomEntry $entry
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getEntryIndexTitle(CustomTable $table, CustomEntry $entry)
     {
-        if($table->has_child || $entry->custom_table->display_field === 'title') {
+        if ($table->has_child || $entry->custom_table->display_field === 'title') {
             return $this->BcBaser->getLink(
                 $entry->title,
                 ['action' => 'edit', $table->id, $entry->id],
-                ['escape' => false]
+                ['escape' => true]
             );
         } else {
             return h($entry->title);
@@ -280,14 +316,16 @@ class CustomContentAdminHelper extends CustomContentAppHelper
 
     /**
      * プラグインのメタフィールドを表示する
+     * @checked
+     * @noTodo
      */
     public function displayPluginMeta()
     {
         $fieldTypes = Configure::read('BcCustomContent.fieldTypes');
         foreach($fieldTypes as $key => $value) {
-            if($key === 'group') continue;
+            if ($key === 'group') continue;
             $element = 'custom_field_meta';
-            if(file_exists(Plugin::templatePath($key) . 'Admin/element/' . DS . $element . '.php')) {
+            if (file_exists(Plugin::templatePath($key) . 'Admin/element/' . DS . $element . '.php')) {
                 $this->BcBaser->element($key . '.' . $element);
             }
         }
@@ -299,17 +337,20 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param \ArrayObject $entries
      * @param CustomEntry $currentEntry
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isEnabledMoveUpEntry(\ArrayObject $entries, CustomEntry $currentEntry)
     {
         $checkOn = false;
         foreach($entries as $key => $entry) {
-            if($currentEntry->level !== $entry->level) continue;
+            if ($currentEntry->level !== $entry->level) continue;
             /** @var CustomEntry $entry */
-            if($entry->id === $currentEntry->id) {
+            if ($entry->id === $currentEntry->id) {
                 $checkOn = true;
             }
-            if(!$checkOn) return true;
+            if (!$checkOn) return true;
         }
         return false;
     }
@@ -320,15 +361,18 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * @param \ArrayObject $entries
      * @param CustomEntry $currentEntry
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isEnabledMoveDownEntry(\ArrayObject $entries, CustomEntry $currentEntry)
     {
         $checkOn = false;
         foreach($entries as $entry) {
-            if($currentEntry->level !== $entry->level) continue;
-            if($checkOn) return true;
+            if ($currentEntry->level !== $entry->level) continue;
+            if ($checkOn) return true;
             /** @var CustomEntry $entry */
-            if($entry->id === $currentEntry->id) {
+            if ($entry->id === $currentEntry->id) {
                 $checkOn = true;
             }
         }
@@ -340,6 +384,9 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomEntry $entry
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isAllowPublishEntry(CustomEntry $entry)
     {
@@ -351,6 +398,9 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      * カスタムフィールドの一覧を取得する
      *
      * @return \Cake\ORM\Query
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getFields()
     {
@@ -364,13 +414,15 @@ class CustomContentAdminHelper extends CustomContentAppHelper
      *
      * @param CustomLink $link
      * @return string
+     * @checked
+     * @noTodo
      */
     public function getGroupErrors(CustomLink $link)
     {
         $errors = [];
-        if($link->group_valid && $link->children) {
+        if ($link->group_valid && $link->children) {
             foreach($link->children as $child) {
-                if($this->BcAdminForm->isFieldError($child->name)) {
+                if ($this->BcAdminForm->isFieldError($child->name)) {
                     $errors[] = $this->error($child);
                 }
             }

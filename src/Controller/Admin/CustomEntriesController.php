@@ -36,10 +36,14 @@ class CustomEntriesController extends CustomContentAdminAppController
      *
      * @param EventInterface $event
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeFilter(EventInterface $event)
     {
-        parent::beforeFilter($event);
+        $response = parent::beforeFilter($event);
+        if($response) return $response;
 
         $tableId = $this->request->getParam('pass.0');
         if (!$tableId) {
@@ -69,6 +73,9 @@ class CustomEntriesController extends CustomContentAdminAppController
      *
      * @param CustomEntriesAdminServiceInterface $service
      * @param int $tableId
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(CustomEntriesAdminServiceInterface $service, int $tableId)
     {
@@ -109,6 +116,9 @@ class CustomEntriesController extends CustomContentAdminAppController
      *
      * @param CustomEntriesAdminServiceInterface $service
      * @param int $tableId
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(CustomEntriesAdminServiceInterface $service, int $tableId)
     {
@@ -150,6 +160,9 @@ class CustomEntriesController extends CustomContentAdminAppController
      * @param CustomEntriesAdminServiceInterface $service
      * @param int $tableId
      * @param int $id
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function edit(CustomEntriesAdminServiceInterface $service, int $tableId, int $id)
     {
@@ -192,6 +205,9 @@ class CustomEntriesController extends CustomContentAdminAppController
      * @param CustomEntriesServiceInterface $service
      * @param int $id
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function delete(CustomEntriesServiceInterface $service, int $tableId, int $id)
     {
@@ -217,6 +233,9 @@ class CustomEntriesController extends CustomContentAdminAppController
      * @param CustomEntriesServiceInterface $service
      * @param int $tableId
      * @param int $id
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function move_up(CustomEntriesServiceInterface $service, int $tableId, int $id)
     {
@@ -243,6 +262,9 @@ class CustomEntriesController extends CustomContentAdminAppController
      * @param CustomEntriesServiceInterface $service
      * @param int $tableId
      * @param int $id
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function move_down(CustomEntriesServiceInterface $service, int $tableId, int $id)
     {

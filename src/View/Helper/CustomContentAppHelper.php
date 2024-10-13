@@ -44,13 +44,15 @@ class CustomContentAppHelper extends Helper
      * Helper
      * @var string[]
      */
-    public $helpers = ['BaserCore.BcBaser'];
+    public array $helpers = ['BaserCore.BcBaser'];
 
     /**
      * Constructor
      *
      * @param View $view
      * @param array $config
+     * @checked
+     * @noTodo
      */
     public function __construct(View $view, array $config = [])
     {
@@ -60,6 +62,8 @@ class CustomContentAppHelper extends Helper
 
     /**
      * プラグインのヘルパーを読み込む
+     * @checked
+     * @noTodo
      */
     public function loadPluginHelper(): void
     {
@@ -69,7 +73,10 @@ class CustomContentAppHelper extends Helper
             if ($plugin === 'group') continue;
             $pluginPath = Plugin::path($plugin);
             if (file_exists($pluginPath . 'src' . DS . 'View' . DS . 'Helper' . DS . $plugin . 'Helper.php')) {
-                $this->{$plugin} = $this->_View->loadHelper($plugin . '.' . $plugin);
+                $this->{$plugin} = $this->_View->loadHelper(
+                    "$plugin",
+                    ['className' => "$plugin.$plugin"]
+                );
             }
         }
     }
@@ -81,6 +88,9 @@ class CustomContentAppHelper extends Helper
      *
      * @param CustomLink $customLink
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isEnableField(CustomLink $customLink): bool
     {
@@ -95,6 +105,9 @@ class CustomContentAppHelper extends Helper
      * @param CustomEntry $entry
      * @param bool $base
      * @return mixed|string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getEntryUrl(CustomEntry $entry, $full = true)
     {
@@ -111,6 +124,8 @@ class CustomContentAppHelper extends Helper
      * @param CustomLink $customLink
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
      */
     public function searchControl(CustomLink $customLink, array $options = []): string
     {
@@ -129,6 +144,9 @@ class CustomContentAppHelper extends Helper
      *
      * @param CustomLink $customLink
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isDisplayEntrySearch(CustomLink $customLink, string $type = 'front')
     {

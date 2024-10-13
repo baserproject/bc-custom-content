@@ -28,6 +28,7 @@ use BcCustomContent\Service\CustomTablesService;
 use BcCustomContent\Service\CustomTablesServiceInterface;
 use Cake\Controller\Controller;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Paging\PaginatedResultSet;
 use Cake\Datasource\ResultSetInterface;
 use Cake\Http\Exception\NotFoundException;
 
@@ -47,21 +48,24 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @var CustomEntriesService
      */
-    public $entriesService;
+    public CustomEntriesServiceInterface|CustomEntriesService $EntriesService;
 
     /**
      * カスタムコンテンツサービス
      * @var CustomContentsService
      */
-    public $contentsService;
+    public CustomContentsServiceInterface|CustomContentsService $ContentsService;
 
     /**
      * Constructor
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
-        $this->entriesService = $this->getService(CustomEntriesServiceInterface::class);
-        $this->contentsService = $this->getService(CustomContentsServiceInterface::class);
+        $this->EntriesService = $this->getService(CustomEntriesServiceInterface::class);
+        $this->ContentsService = $this->getService(CustomContentsServiceInterface::class);
     }
 
     /**
@@ -70,6 +74,9 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * @param int $entityId
      * @param array $options
      * @return mixed
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getCustomContent(int $entityId)
     {
@@ -83,29 +90,37 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @param int $customTableId
      * @return mixed
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getCustomEntries(CustomContent $customContent, array $queryParams = [])
     {
 
-        $this->entriesService->setup($customContent->custom_table_id);
+        $this->EntriesService->setup($customContent->custom_table_id);
         $params = array_merge([
             'contain' => ['CustomTables' => ['CustomContents' => ['Contents']]],
             'status' => 'publish',
             'order' => $customContent->list_order,
             'direction' => $customContent->list_direction,
-            'limit' => $customContent->list_count
+            'limit' => $customContent->list_count,
+            'custom_content_id' => $customContent->id
         ], $queryParams);
-        return $this->entriesService->getIndex($params);
+        return $this->EntriesService->getIndex($params);
     }
 
     /**
      * 一覧用の View 変数を取得する
      *
      * @param EntityInterface $customContent
-     * @param ResultSetInterface $customEntries
+     * @param PaginatedResultSet $customEntries
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function getViewVarsForIndex(EntityInterface $customContent, ResultSetInterface $customEntries): array
+    public function getViewVarsForIndex(EntityInterface $customContent, PaginatedResultSet $customEntries): array
     {
         /** @var CustomContent $customContent */
         /** @var CustomTablesService $customTables */
@@ -146,16 +161,23 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * @param EntityInterface $customContent
      * @param int $entryId
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getViewVarsForView(EntityInterface $customContent, mixed $entryId, bool $preview = false)
     {
-        $this->entriesService->setup($customContent->custom_table_id);
+        $this->EntriesService->setup($customContent->custom_table_id);
         if($preview) {
-            $options = [];
+            $entity = null;
+            if($entryId) {
+                $entity = $this->EntriesService->get($entryId);
+            }
         } else {
             $options = ['status' => 'publish'];
+            $entity = $this->EntriesService->get($entryId, $options);
         }
-        $entity = $this->entriesService->get($entryId, $options);
+
         /** @var CustomContent $customContent */
         return [
             'customContent' => $customContent,
@@ -166,8 +188,8 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
                 'plugin' => 'BcCustomContent',
                 'controller' => 'CustomEntries',
                 'action' => 'edit',
-                $entity->custom_table_id,
-                $entity->id
+                $customContent->custom_table_id,
+                $entity->id?? null
             ] : '',
         ];
     }
@@ -177,6 +199,9 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @param CustomContent $customContent
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getIndexTemplate(CustomContent $customContent): string
     {
@@ -188,6 +213,9 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      *
      * @param CustomContent $customContent
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getViewTemplate(CustomContent $customContent): string
     {
@@ -198,20 +226,23 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * カスタムエントリーの詳細ページ用のプレビューのセットアップを行う
      *
      * @param Controller $controller
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setupPreviewForView(Controller $controller): void
     {
         $request = $controller->getRequest();
         $entryId = $request->getParam('pass.0');
-        if(!$entryId) throw new NotFoundException();
 
-        $customContent = $this->contentsService->get($request->getParam('entityId'));
+        $customContent = $this->ContentsService->get($request->getParam('entityId'));
         $controller->set($this->getViewVarsForView($customContent, $entryId, true));
-        $entity = $this->entriesService->CustomEntries->patchEntity(
-            $controller->viewBuilder()->getVar('customEntry'),
+        $customEntry = $controller->viewBuilder()->getVar('customEntry');
+        $entity = $this->EntriesService->CustomEntries->patchEntity(
+            $customEntry?? $this->EntriesService->CustomEntries->newEmptyEntity(),
             $request->getData()
         );
-        $entity = $this->entriesService->CustomEntries->decodeRow($entity);
+        $entity = $this->EntriesService->CustomEntries->decodeRow($entity);
         $controller->set(['customEntry' => $entity]);
 
         // テンプレートの変更
@@ -222,12 +253,15 @@ class CustomContentFrontService extends BcFrontContentsService implements Custom
      * カスタムエントリーの詳細ページ用のプレビューのセットアップを行う
      *
      * @param Controller $controller
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setupPreviewForIndex(Controller $controller): void
     {
         $request = $controller->getRequest();
-        $customContent = $this->contentsService->get($request->getParam('entityId'));
-        $customContent = $this->contentsService->CustomContents->patchEntity($customContent, $request->getData());
+        $customContent = $this->ContentsService->get($request->getParam('entityId'));
+        $customContent = $this->ContentsService->CustomContents->patchEntity($customContent, $request->getData());
         $controller->setRequest($request->withAttribute('currentContent', $customContent->content));
 
         $controller->setRequest($controller->getRequest()->withQueryParams(array_merge([

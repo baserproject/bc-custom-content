@@ -31,7 +31,7 @@ class BcCcWysiwygHelper extends Helper
      * Helper
      * @var string[]
      */
-    public $helpers = [
+    public array $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form']
     ];
 
@@ -67,7 +67,10 @@ class BcCcWysiwygHelper extends Helper
     {
         $link->name = 'wysiwyg';
         $this->BcAdminForm->unlockField($link->name);
-        return $this->control($link) . '<br>※ Wysiwyg エディタはリアルタイムでのプレビューは未対応です。保存してから確認してください。';
+        $options = [
+            'value' => $link->custom_field->default_value,
+        ];
+        return $this->control($link, $options) . '<br>※ Wysiwyg エディタはリアルタイムでのプレビューは未対応です。保存してから確認してください。';
     }
 
     /**

@@ -45,6 +45,9 @@ class CustomField extends Entity
      * フィールドタイプの表示名を取得する
      *
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getTypeTitle(): string
     {

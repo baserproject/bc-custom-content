@@ -48,7 +48,7 @@ class BcCustomContentServiceProvider extends ServiceProvider
      * Provides
      * @var string[]
      */
-    protected $provides = [
+    protected array $provides = [
         CustomContentsServiceInterface::class,
         CustomTablesServiceInterface::class,
         CustomFieldsServiceInterface::class,
@@ -70,6 +70,7 @@ class BcCustomContentServiceProvider extends ServiceProvider
      * @param \Cake\Core\ContainerInterface $container
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function services($container): void
     {

@@ -33,22 +33,6 @@ class CustomFieldsControllerTest extends BcTestCase
     use BcContainerTrait;
 
     /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'plugin.BaserCore.Factory/Sites',
-        'plugin.BaserCore.Factory/SiteConfigs',
-        'plugin.BaserCore.Factory/Users',
-        'plugin.BaserCore.Factory/UsersUserGroups',
-        'plugin.BaserCore.Factory/UserGroups',
-        'plugin.BcCustomContent.Factory/CustomFields',
-        'plugin.BcCustomContent.Factory/CustomLinks',
-        'plugin.BcCustomContent.Factory/CustomTables',
-    ];
-
-    /**
      * Access Token
      * @var string
      */
@@ -65,7 +49,6 @@ class CustomFieldsControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
-        $this->setFixtureTruncate();
         parent::setUp();
         $this->loadFixtureScenario(InitAppScenario::class);
         $token = $this->apiLoginAdmin(1);
@@ -164,6 +147,8 @@ class CustomFieldsControllerTest extends BcTestCase
         $this->loadFixtureScenario(CustomFieldsScenario::class);
         $data = CustomFieldFactory::get(1);
         $data['title'] = 'test edit title';
+        $data['validate'] = ['EMAIL_CONFIRM'];
+        $data['meta'] = ['BcCustomContent' => ['email_confirm' => 'aa']];
         //APIを呼ぶ
         $this->post('/baser/api/admin/bc-custom-content/custom_fields/edit/1.json?token=' . $this->accessToken, $data->toArray());
         //ステータスを確認

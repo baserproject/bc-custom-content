@@ -9,9 +9,9 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Controller\Admin;
+namespace BcCustomContent\Controller;
 
-use BaserCore\Controller\BcAppController;
+use BaserCore\Controller\AppController;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -20,7 +20,7 @@ use BaserCore\Annotation\Checked;
 /**
  * CustomContentFrontAppController
  */
-class CustomContentFrontAppController extends BcAppController
+class CustomContentFrontAppController extends AppController
 {
 
     /**
@@ -29,11 +29,12 @@ class CustomContentFrontAppController extends BcAppController
      * @param EventInterface $event
      * @return \Cake\Http\Response|void|null
      * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeRender(EventInterface $event): void
     {
         parent::beforeRender($event);
-        if (isset($this->RequestHandler) && $this->RequestHandler->prefers('json')) return;
         $this->viewBuilder()->setClassName('BcCustomContent.CustomContentFrontApp');
     }
 

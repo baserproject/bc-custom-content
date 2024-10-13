@@ -14,6 +14,7 @@ namespace BcCustomContent\Service;
 use BaserCore\Utility\BcContainerTrait;
 use BcCustomContent\Model\Table\CustomLinksTable;
 use Cake\Datasource\EntityInterface;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -34,7 +35,16 @@ class CustomLinksService implements CustomLinksServiceInterface
     use BcContainerTrait;
 
     /**
+     * CustomLinks Table
+     * @var CustomLinksTable|Table
+     */
+    public CustomLinksTable|Table $CustomLinks;
+
+    /**
      * Constructor
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -47,6 +57,9 @@ class CustomLinksService implements CustomLinksServiceInterface
      * @param int $id
      * @param array $options
      * @return \Cake\Datasource\EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function get(int $id, array $options = [])
     {
@@ -62,7 +75,10 @@ class CustomLinksService implements CustomLinksServiceInterface
             $conditions = $this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish();
             $conditions = array_merge($conditions, ['CustomLinks.status' => true]);
         }
-        return $this->CustomLinks->get($id, ['contain' => $options['contain'], 'conditions' => $conditions]);
+        return $this->CustomLinks->get($id,
+            contain: $options['contain'],
+            conditions: $conditions
+        );
     }
 
     /**
@@ -71,6 +87,9 @@ class CustomLinksService implements CustomLinksServiceInterface
      * @param int $tableId
      * @param array $options
      * @return \Cake\ORM\Query
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getIndex(int $tableId, array $options = [])
     {
@@ -91,13 +110,13 @@ class CustomLinksService implements CustomLinksServiceInterface
             $findOptions['for'] = $options['for'];
         }
 
-        $query = $this->CustomLinks->find($options['finder'], $findOptions)
-            ->order('CustomLinks.lft ASC');
+        $query = $this->CustomLinks->find($options['finder'], ...$findOptions)
+            ->orderBy('CustomLinks.lft ASC');
 
         $conditions = ['CustomLinks.custom_table_id' => $tableId];
 
         if ($options['status'] === 'publish') {
-            $options ['contain'] = ['CustomContents' => ['Contents']];
+            $options ['contain'] = ['CustomTables' => ['CustomContents' => ['Contents']]];
             $fields = $this->CustomLinks->getSchema()->columns();
             $query->select($fields);
             $conditions = array_merge(
@@ -107,6 +126,8 @@ class CustomLinksService implements CustomLinksServiceInterface
             );
         }
 
+        if (is_null($options['contain']))
+            $options['contain'] = [];
         return $query->where($conditions)->contain($options['contain']);
     }
 
@@ -159,6 +180,9 @@ class CustomLinksService implements CustomLinksServiceInterface
      * @param EntityInterface $entity
      * @param array $postData
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $entity, array $postData)
     {
@@ -186,6 +210,9 @@ class CustomLinksService implements CustomLinksServiceInterface
      *
      * @param string $field
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getControlSource(string $field, $options = []): array
     {
@@ -200,6 +227,9 @@ class CustomLinksService implements CustomLinksServiceInterface
      *
      * @param int $tableId
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getGroupList(int $tableId)
     {
@@ -222,6 +252,7 @@ class CustomLinksService implements CustomLinksServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
@@ -246,6 +277,10 @@ class CustomLinksService implements CustomLinksServiceInterface
      *
      * @param int $tableId
      * @param array $customLinks
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function updateFields(int $tableId, array $customLinks)
     {
@@ -260,6 +295,9 @@ class CustomLinksService implements CustomLinksServiceInterface
      *
      * @param int $tableId
      * @param array $customLinks 存在対象のフィールド
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function deleteFields(int $tableId, array $customLinks)
     {

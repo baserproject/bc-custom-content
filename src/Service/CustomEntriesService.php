@@ -31,6 +31,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -54,7 +55,27 @@ class CustomEntriesService implements CustomEntriesServiceInterface
     use CustomContentArrayTrait;
 
     /**
+     * CustomEntries Table
+     * @var CustomEntriesTable|Table
+     */
+    public CustomEntriesTable|Table $CustomEntries;
+
+    /**
+     * CustomTables Table
+     * @var CustomTablesTable|Table
+     */
+    public CustomTablesTable|Table $CustomTables;
+
+    /**
+     * BcDatabaseService
+     * @var BcDatabaseServiceInterface|BcDatabaseService
+     */
+    public BcDatabaseServiceInterface|BcDatabaseService $BcDatabaseService;
+
+    /**
      * Constructor
+     * @checked
+     * @noTodo
      */
     public function __construct()
     {
@@ -68,13 +89,15 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @return EntityInterface
+     * @checked
+     * @noTodo
      */
     public function getNew(int $tableId)
     {
         $default = [
             'custom_table_id' => $tableId,
             'creator_id' => BcUtil::loginUser()->id,
-            'published' => FrozenTime::now(),
+            'published' => \Cake\I18n\DateTime::now(),
             'status' => 0
         ];
 
@@ -95,6 +118,14 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         return new CustomEntry($default, ['source' => 'BcCustomContent.CustomEntries']);
     }
 
+    /**
+     *
+     * @param string $type
+     * @return string
+     * @notodo
+     * @checked
+     * @unitTest
+     */
     public function getFieldControlType(string $type)
     {
         return Configure::read("BcCustomContent.fieldTypes.$type.controlType");
@@ -108,6 +139,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param int $tableId
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function setup(int $tableId, array $postData = [])
     {
@@ -118,6 +150,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * カスタムエントリーの一覧を取得する
      *
      * @return \Cake\ORM\Query
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function getIndex(array $queryParams = [])
     {
@@ -125,15 +160,18 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             'limit' => null,
             'direction' => '',    // 並び方向
             'order' => '',    // 並び順対象のフィールド
-            'contain' => ['CustomTables' => ['CustomContents' => ['Contents']]],
+            'contain' => [],
             'status' => '',
             'use_api' => null
         ], $queryParams);
 
         $query = $this->CustomEntries->find()
             ->select($this->createSelect($options))
-            ->select($this->CustomEntries->CustomTables)
             ->contain($options['contain']);
+
+        if(array_key_exists('CustomTables', $options['contain']) || in_array('CustomTables', $options['contain'])) {
+            $query->select($this->CustomEntries->CustomTables);
+        }
 
         if ($options['order']) {
             $query->order($this->createOrder($options['order'], $options['direction']));
@@ -191,6 +229,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param Query $query
      * @param array $params
      * @return Query
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function createIndexConditions(Query $query, array $params)
     {
@@ -203,12 +244,13 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             'title' => null,
             'creator_id' => null,
             'status' => null,
+            'custom_content_id' => null
         ], $params);
 
         // 公開状態
         if ($params['status'] === 'publish') {
             $conditions = $this->CustomEntries->getConditionAllowPublish();
-            $params['contain'] = ['CustomTables' => ['CustomContents' => ['Contents']]];
+            $query->contain(['CustomTables' => ['CustomContents' => ['Contents']]]);
             $fields = $this->CustomEntries->getSchema()->columns();
             $query->select($fields);
             $conditions = array_merge_recursive(
@@ -232,6 +274,12 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         // 作成者
         if (!is_null($params['creator_id'])) {
             $conditions['CustomEntries.creator_id'] = $params['creator_id'];
+        }
+
+        // custom_content_id
+        if (!is_null($params['custom_content_id'])) {
+            $query->contain('CustomTables.CustomContents');
+            $conditions['CustomContents.id'] = $params['custom_content_id'];
         }
 
         unset($params['status'], $params['title'], $params['creator_id']);
@@ -279,6 +327,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param array $options
      * @return array
+     * @checked
+     * @notodo
+     * @unitTest
      */
     public function getList(array $options = [])
     {
@@ -289,7 +340,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         $table = $this->CustomEntries->CustomTables->get($this->CustomEntries->tableId);
         $this->CustomEntries->setDisplayField($table->display_field);
         if ($table->has_child) {
-            return $this->getParentTargetList(null, $options['conditions']);
+            return $this->getParentTargetList(null, $options);
         } else {
             return $this->CustomEntries->find('list')->where($options['conditions'])->toArray();
         }
@@ -301,19 +352,29 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param string $order
      * @param string $direction
      * @return string
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function createOrder(string $order, string $direction)
     {
         if (strpos($order, '.') === false) {
             $order = "CustomEntries.{$order}";
         }
-        return "{$order} {$direction}, CustomEntries.id {$direction}";
+        if($order !== 'CustomEntries.id') {
+            return "{$order} {$direction}, CustomEntries.id {$direction}";
+        } else {
+            return "{$order} {$direction}";
+        }
     }
 
     /**
      * カスタムエントリーの単一データを取得する
      *
      * @return EntityInterface
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function get($id, array $options = [])
     {
@@ -357,6 +418,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param array $options
      * @return array|string[]
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function createSelect(array $options)
     {
@@ -384,6 +448,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param array $postData
      * @return EntityInterface
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function create(array $postData)
     {
@@ -398,6 +465,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param EntityInterface $entity
      * @param array $postData
      * @return EntityInterface
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function update(EntityInterface $entity, array $postData)
     {
@@ -411,6 +481,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $id
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function delete(int $id)
     {
@@ -425,6 +498,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param string $fieldName
      * @param string $type
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function addField(int $tableId, string $fieldName, string $type): bool
     {
@@ -439,6 +515,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param string $oldName
      * @param string $newName
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function renameField(int $tableId, string $oldName, string $newName): bool
     {
@@ -452,6 +531,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param int $tableId
      * @param string $fieldName
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function removeField(int $tableId, string $fieldName)
     {
@@ -464,6 +546,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function createTable(int $tableId): bool
     {
@@ -496,6 +581,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param int $tableId
      * @param string $oldName
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function renameTable(int $tableId, string $oldName)
     {
@@ -515,6 +603,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function dropTable(int $tableId)
     {
@@ -527,6 +618,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $tableId
      * @param array $fields
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function addFields(int $tableId, array $links)
     {
@@ -545,6 +639,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param string $field
      * @return array
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function getControlSource(string $field, array $options = []): array
     {
@@ -565,6 +662,8 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int|null $selfId
      * @return array
+     * @notodo
+     * @checked
      */
     public function getParentTargetList($selfId, array $options = [])
     {
@@ -593,13 +692,16 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param EntityInterface $entity
      * @return bool
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function isAllowPublish(EntityInterface $entity)
     {
         $allowPublish = $entity->status;
         // 期限を設定している場合に条件に該当しない場合は強制的に非公開とする
-        $invalidBegin = $entity->publish_begin instanceof FrozenTime && $entity->publish_begin->isFuture();
-        $invalidEnd = $entity->publish_end instanceof FrozenTime && $entity->publish_end->isPast();
+        $invalidBegin = $entity->publish_begin instanceof \Cake\I18n\DateTime && $entity->publish_begin->isFuture();
+        $invalidEnd = $entity->publish_end instanceof \Cake\I18n\DateTime && $entity->publish_end->isPast();
         if ($invalidBegin || $invalidEnd) {
             $allowPublish = false;
         }
@@ -613,6 +715,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @param EntityInterface $entity
      * @param bool $full
      * @return string
+     * @notodo
+     * @checked
+     * @unitTest
      */
     public function getUrl(Content $content, EntityInterface $entity, bool $full = true)
     {
@@ -636,6 +741,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      * @return array $data
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function autoConvert(array $data): array
     {
@@ -661,6 +767,8 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $id
      * @return mixed
+     * @checked
+     * @noTodo
      */
     public function moveUp(int $id)
     {
@@ -672,6 +780,8 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      *
      * @param int $id
      * @return mixed
+     * @checked
+     * @noTodo
      */
     public function moveDown(int $id)
     {

@@ -35,11 +35,14 @@ class CustomTablesController extends CustomContentAdminAppController
      *
      * @param EventInterface $event
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeFilter(EventInterface $event)
     {
         if ($this->request->getParam('action') === 'delete') {
-            $this->Security->setConfig('validatePost', false);
+            $this->FormProtection->setConfig('validate', false);
         }
         return parent::beforeFilter($event);
     }
@@ -48,6 +51,9 @@ class CustomTablesController extends CustomContentAdminAppController
      * カスタムテーブルの一覧を表示
      *
      * @param CustomTablesServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(CustomTablesAdminServiceInterface $service)
     {
@@ -58,6 +64,10 @@ class CustomTablesController extends CustomContentAdminAppController
      * カスタムテーブルの新規追加
      *
      * @param CustomTablesAdminServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(CustomTablesAdminServiceInterface $service)
     {
@@ -97,6 +107,9 @@ class CustomTablesController extends CustomContentAdminAppController
      * @param CustomTablesAdminServiceInterface $service
      * @param int $id
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function edit(CustomTablesAdminServiceInterface $service, int $id)
     {
@@ -120,7 +133,18 @@ class CustomTablesController extends CustomContentAdminAppController
                 return $this->redirect(['action' => 'edit', $entity->id]);
             } catch (PersistenceFailedException $e) {
                 $entity = $e->getEntity();
-                $this->BcMessage->setError(__d('baser_core', '入力エラーです。内容を修正してください。'));
+                $hasLinkError = false;
+                if($entity->custom_links) {
+                    foreach($entity->custom_links as $key => $link) {
+                        // リンクにエラーが存在する場合、そのままビューに値が渡ると、
+                        // 利用中のフィールド内の対象フィールドの表示が壊れてしまうため除外する
+                        if(!$link->id) unset($entity->custom_links[$key]);
+                        if($link->getErrors()) $hasLinkError = true;
+                    }
+                }
+                $message = __d('baser_core', '入力エラーです。内容を修正してください。');
+                if($hasLinkError) $message .= "\n" . $e->getMessage();
+                $this->BcMessage->setError($message);
             } catch (\Throwable $e) {
                 $this->BcMessage->setError(__d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage()));
             }
@@ -134,6 +158,9 @@ class CustomTablesController extends CustomContentAdminAppController
      * @param CustomTablesServiceInterface $service
      * @param int $id
      * @return \Cake\Http\Response|void|null
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function delete(CustomTablesServiceInterface $service, int $id)
     {

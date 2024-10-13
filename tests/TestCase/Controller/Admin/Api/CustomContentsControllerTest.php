@@ -30,21 +30,6 @@ class CustomContentsControllerTest extends BcTestCase
     use IntegrationTestTrait;
 
     /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'plugin.BaserCore.Factory/Sites',
-        'plugin.BaserCore.Factory/SiteConfigs',
-        'plugin.BaserCore.Factory/Users',
-        'plugin.BaserCore.Factory/UsersUserGroups',
-        'plugin.BaserCore.Factory/UserGroups',
-        'plugin.BcCustomContent.Factory/CustomContents',
-        'plugin.BaserCore.Factory/Contents',
-    ];
-
-    /**
      * Access Token
      * @var string
      */
@@ -61,7 +46,6 @@ class CustomContentsControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
-        $this->setFixtureTruncate();
         parent::setUp();
         $this->loadFixtureScenario(InitAppScenario::class);
         $token = $this->apiLoginAdmin(1);
@@ -79,6 +63,22 @@ class CustomContentsControllerTest extends BcTestCase
     }
 
     /**
+     * test index
+     */
+    public function test_index()
+    {
+        //データを生成
+        $this->loadFixtureScenario(CustomContentsScenario::class);
+        //APIを呼ぶ
+        $this->get('/baser/api/admin/bc-custom-content/custom_contents/index.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertCount(3, $result->customContents);
+    }
+
+    /**
      * test add
      */
     public function test_add()
@@ -88,7 +88,10 @@ class CustomContentsControllerTest extends BcTestCase
             'description' => 'test custom content add',
             'template' => 'template_add',
             'content' => [
-                'title' => 'custom content add'
+                'title' => 'custom content add',
+                'site_id' => 1,
+                'parent_id' => 0,
+                'content' => 'add content'
             ]
         ];
         //APIを呼ぶ
@@ -118,6 +121,31 @@ class CustomContentsControllerTest extends BcTestCase
     }
 
     /**
+     * test view
+     */
+    public function test_view()
+    {
+        //データを生成
+        $this->loadFixtureScenario(CustomContentsScenario::class);
+        //APIを呼ぶ
+        $this->get('/baser/api/admin/bc-custom-content/custom_contents/view/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($result->customContent->description, 'サービステスト');
+        $this->assertEquals($result->customContent->content->url, '/test/');
+
+        //エラーを発生した時の確認
+        $this->get('/baser/api/admin/bc-custom-content/custom_contents/view/10.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseCode(404);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データが見つかりません。', $result->message);
+    }
+
+    /**
      * test edit
      */
     public function test_edit()
@@ -127,6 +155,7 @@ class CustomContentsControllerTest extends BcTestCase
             'custom_table_id' => 1,
             'description' => 'test custom content change',
             'template' => 'template_change',
+            'list_count' => 1,
             'content' => [
                 'title' => 'custom content change'
             ]
@@ -149,7 +178,7 @@ class CustomContentsControllerTest extends BcTestCase
         $this->assertEquals('データが見つかりません。', $result->message);
 
         //無効なIDを指定した場合、
-        $this->post('/baser/api/admin/bc-custom-content/custom_contents/edit/1.json?token=' . $this->accessToken, []);
+        $this->post('/baser/api/admin/bc-custom-content/custom_contents/edit/1.json?token=' . $this->accessToken, ['custom_table_id' => 1]);
         //ステータスを確認
         $this->assertResponseCode(400);
         //戻る値を確認
@@ -196,6 +225,7 @@ class CustomContentsControllerTest extends BcTestCase
         $this->assertResponseOk();
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertCount(2, $result->customContents);
+        $this->assertEquals(get_object_vars($result->customContents)[1], 'サービスタイトル');
+        $this->assertEquals(get_object_vars($result->customContents)[2], '求人タイトル');
     }
 }

@@ -41,6 +41,9 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
      * @param EntityInterface $table
      * @param ResultSet|array $entities
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getViewVarsForIndex(EntityInterface $table, $entities): array
     {
@@ -59,6 +62,9 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
      *
      * @param int $tableId
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getTableWithLinksByAll(int $tableId) {
         /** @var CustomTablesService $customTables */
@@ -73,6 +79,9 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
      *
      * @param int $tableId
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getViewVarsForAdd(int $tableId, EntityInterface $entity): array
     {
@@ -85,11 +94,16 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
             $customTable = $customTables->getWithLinks($tableId);
             $availablePreview = false;
         }
+        $entryUrl = null;
+        if($customTable->isContentTable()) {
+            $entryUrl = $this->getUrl($customTable->custom_content->content, $entity);
+        }
         return [
             'entity' => $entity,
             'tableId' => $tableId,
             'customTable' => $customTable,
-            'availablePreview' => $availablePreview
+            'availablePreview' => $availablePreview,
+            'entryUrl' => $entryUrl,
         ];
     }
 
@@ -98,6 +112,9 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
      *
      * @param int $tableId
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getViewVarsForEdit(int $tableId, EntityInterface $entity): array
     {
@@ -109,18 +126,20 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
         } else {
             $customTable = $customTables->getWithLinks($tableId);
         }
-        $publishLink = null;
+        $publishLink = $entryUrl = null;
         $availablePreview = false;
         if($customTable->isContentTable()) {
             $publishLink = $this->getPublishLinkForEdit($customTable->custom_content->content, $entity);
             $availablePreview = true;
+            $entryUrl = $this->getUrl($customTable->custom_content->content, $entity);
         }
         return [
             'entity' => $entity,
             'tableId' => $tableId,
             'customTable' => $customTable,
             'publishLink' => $publishLink,
-            'availablePreview' => $availablePreview
+            'availablePreview' => $availablePreview,
+            'entryUrl' => $entryUrl
         ];
     }
 
@@ -129,6 +148,9 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
      *
      * @param EntityInterface $table
      * @return string|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getPublishLinkForIndex(EntityInterface $table)
     {
@@ -151,6 +173,7 @@ class CustomEntriesAdminService extends CustomEntriesService implements CustomEn
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getPublishLinkForEdit(Content $content, EntityInterface $entity)
     {

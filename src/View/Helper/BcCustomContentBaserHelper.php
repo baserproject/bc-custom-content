@@ -13,6 +13,9 @@ namespace BcCustomContent\View\Helper;
 
 use BaserCore\View\Helper\BcPluginBaserHelperInterface;
 use Cake\View\Helper;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * MailBaserHelper
@@ -26,7 +29,7 @@ class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperIn
      * ヘルパー
      * @var array
      */
-    public $helpers = [
+    public array $helpers = [
         'BcCustomContent.CustomContent',
     ];
 
@@ -34,6 +37,9 @@ class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperIn
      * メソッド一覧取得
      *
      * @return array[]
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function methods(): array
     {
@@ -47,6 +53,7 @@ class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperIn
             'isDisplayCustomField' => ['CustomContent', 'isDisplayField'],
             'getCustomFieldTitle' => ['CustomContent', 'getFieldTitle'],
             'getCustomFieldValue' => ['CustomContent', 'getFieldValue'],
+            'getCustomContentTitle' => ['CustomContent', 'getTitle'],
         ];
     }
 

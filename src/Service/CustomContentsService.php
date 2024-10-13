@@ -13,14 +13,15 @@ namespace BcCustomContent\Service;
 
 use BaserCore\Error\BcException;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcFolder;
 use BaserCore\Utility\BcUtil;
 use BcCustomContent\Model\Table\CustomContentsTable;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Datasource\EntityInterface;
-use Cake\Filesystem\Folder;
 use Cake\ORM\Query;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -40,7 +41,16 @@ class CustomContentsService implements CustomContentsServiceInterface
     use BcContainerTrait;
 
     /**
+     * CustomContents Table
+     * @var CustomContentsTable|Table
+     */
+    public CustomContentsTable|Table $CustomContents;
+
+    /**
      * Constructor
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -90,6 +100,9 @@ class CustomContentsService implements CustomContentsServiceInterface
      *
      * @param int $id
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function get(int $id, array $options = [])
     {
@@ -100,16 +113,19 @@ class CustomContentsService implements CustomContentsServiceInterface
         if ($options['status'] === 'publish') {
             $conditions = $this->CustomContents->Contents->getConditionAllowPublish();
         }
-        return $this->CustomContents->get($id, [
-            'contain' => ['Contents' => ['Sites']],
-            'conditions' => $conditions
-        ]);
+        return $this->CustomContents->get($id,
+            contain:  ['Contents' => ['Sites']],
+            conditions: $conditions
+        );
     }
 
     /**
      * カスタムコンテンツの初期値となるエンティティを取得する
      *
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getNew(): EntityInterface
     {
@@ -130,6 +146,7 @@ class CustomContentsService implements CustomContentsServiceInterface
      * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function create(array $postData, $options = []): ?EntityInterface
     {
@@ -151,6 +168,7 @@ class CustomContentsService implements CustomContentsServiceInterface
      * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $entity, array $postData, $options = []): ?EntityInterface
     {
@@ -183,6 +201,9 @@ class CustomContentsService implements CustomContentsServiceInterface
      *
      * @param string $field
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getControlSource(string $field, array $options = []): array
     {
@@ -210,14 +231,17 @@ class CustomContentsService implements CustomContentsServiceInterface
      *
      * @param int $tableId
      * @return string[]
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getListOrders(int $tableId): array
     {
-        $list = ['id' => 'No', 'created' => __d('baser_core', '登録日'), 'modified' => __d('baser_core', '編集日')];
+        $list = ['id' => 'No', 'published' => __d('baser_core', '公開日付'), 'created' => __d('baser_core', '登録日'), 'modified' => __d('baser_core', '編集日')];
         if(!$tableId) return $list;
-        $table = $this->CustomContents->CustomTables->get($tableId, ['contain' => [
+        $table = $this->CustomContents->CustomTables->get($tableId, contain: [
             'CustomLinks' => ['CustomFields']
-        ]]);
+        ]);
         if($table->custom_links) {
             foreach($table->custom_links as $customLink) {
                 if($customLink->custom_field->status && $customLink->custom_field->type !== 'group') {
@@ -233,6 +257,9 @@ class CustomContentsService implements CustomContentsServiceInterface
      *
      * @param int $siteId
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getTemplates(int $siteId): array
     {
@@ -240,7 +267,7 @@ class CustomContentsService implements CustomContentsServiceInterface
         $site = $sites->get($siteId);
 
         $templatesPaths = array_merge(
-            [Plugin::templatePath($site->theme) . 'plugin' . DS . 'BcCustomContent' . DS],
+            [Plugin::templatePath($site->getAppliedTheme()) . 'plugin' . DS . 'BcCustomContent' . DS],
             App::path('templates'),
             [Plugin::templatePath(Configure::read('BcApp.coreFrontTheme')) . 'plugin' . DS . 'BcCustomContent' . DS],
             [Plugin::templatePath('BcCustomContent')]
@@ -249,13 +276,13 @@ class CustomContentsService implements CustomContentsServiceInterface
         $templates = [];
         foreach($templatesPaths as $templatePath) {
             $templatePath .= 'CustomContent' . DS;
-            $folder = new Folder($templatePath);
-            $files = $folder->read(true, true);
-            if ($files[0]) {
+            $folder = new BcFolder($templatePath);
+            $files = $folder->getFolders();
+            if ($files) {
                 if ($templates) {
-                    $templates = array_merge($templates, $files[0]);
+                    $templates = array_merge($templates, $files);
                 } else {
-                    $templates = $files[0];
+                    $templates = $files;
                 }
             }
         }
@@ -268,6 +295,9 @@ class CustomContentsService implements CustomContentsServiceInterface
      * 全てのカスタムコンテンツを対象とする
      *
      * @param int $tableId
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function unsetTable(int $tableId): void
     {

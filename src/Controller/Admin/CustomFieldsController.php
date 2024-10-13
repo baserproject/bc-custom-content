@@ -28,16 +28,28 @@ class CustomFieldsController extends CustomContentAdminAppController
      * カスタムフィールドの一覧を表示
      *
      * @param CustomFieldsServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(CustomFieldsAdminServiceInterface $service)
     {
-        $this->set(['entities' => $service->getIndex($this->getRequest()->getQueryParams())]);
+        $this->set([
+            'entities' => $this->paginate(
+                $service->getIndex(
+                    $this->getRequest()->getQueryParams()
+                )
+            )
+        ]);
     }
 
     /**
      * カスタムフィールドの新規追加
      *
      * @param CustomFieldsAdminServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(CustomFieldsAdminServiceInterface $service)
     {
@@ -60,6 +72,7 @@ class CustomFieldsController extends CustomContentAdminAppController
                 $this->redirect(['action' => 'edit', $entity->id]);
             } catch (PersistenceFailedException $e) {
                 $entity = $e->getEntity();
+                $service->CustomFields->decodeEntity($entity);
                 $this->BcMessage->setError(__d('baser_core', '入力エラーです。内容を修正してください。'));
             } catch (\Throwable $e) {
                 $this->BcMessage->setError(__d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage()));
@@ -76,6 +89,9 @@ class CustomFieldsController extends CustomContentAdminAppController
      * @param CustomFieldsAdminServiceInterface $service
      * @param int $id
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function edit(CustomFieldsAdminServiceInterface $service, int $id)
     {
@@ -95,10 +111,11 @@ class CustomFieldsController extends CustomContentAdminAppController
                 $this->dispatchLayerEvent('afterEdit', [
                     'data' => $entity
                 ]);
-                $this->BcMessage->setSuccess(__d('baser_core', 'フィールド「{0}」を更新しました', $entity->title));
+                $this->BcMessage->setSuccess(__d('baser_core', 'フィールド「{0}」を更新しました。', $entity->title));
                 return $this->redirect(['action' => 'edit', $entity->id]);
             } catch (PersistenceFailedException $e) {
                 $entity = $e->getEntity();
+                $service->CustomFields->decodeEntity($entity);
                 $this->BcMessage->setError(__d('baser_core', '入力エラーです。内容を修正してください。'));
             } catch (\Throwable $e) {
                 $this->BcMessage->setError(__d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage()));
@@ -115,6 +132,9 @@ class CustomFieldsController extends CustomContentAdminAppController
      * @param CustomFieldsServiceInterface $service
      * @param int $id
      * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function delete(CustomFieldsServiceInterface $service, int $id)
     {

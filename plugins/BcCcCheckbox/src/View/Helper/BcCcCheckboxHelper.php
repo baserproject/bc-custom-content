@@ -36,7 +36,7 @@ class BcCcCheckboxHelper extends Helper
      * Helper
      * @var string[]
      */
-    public $helpers = [
+    public array $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form']
     ];
 
@@ -70,7 +70,7 @@ class BcCcCheckboxHelper extends Helper
     public function preview(CustomLink $link)
     {
         $options = [
-            'v-model' => 'entity.default_value',
+            'v-model' => 'checkboxDefaultValue',
             'label' => '{{checkboxLabel}}',
         ];
         return $this->control($link, $options);

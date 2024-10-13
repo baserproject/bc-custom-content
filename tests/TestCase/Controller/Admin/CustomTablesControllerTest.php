@@ -15,11 +15,14 @@ use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
+use BcCustomContent\Controller\Admin\CustomTablesController;
+use BcCustomContent\Service\Admin\CustomTablesAdminServiceInterface;
 use BcCustomContent\Service\CustomTablesServiceInterface;
 use BcCustomContent\Test\Factory\CustomFieldFactory;
 use BcCustomContent\Test\Scenario\CustomTablesScenario;
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\Http\ServerRequest;
 use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -35,18 +38,17 @@ class CustomTablesControllerTest extends BcTestCase
     use BcContainerTrait;
 
     /**
-     * Fixtures
+     * Test subject
      *
-     * @var array
+     * @var CustomTablesController
      */
-    public $fixtures = [
-        'plugin.BaserCore.Factory/Sites',
-        'plugin.BaserCore.Factory/SiteConfigs',
-        'plugin.BaserCore.Factory/Users',
-        'plugin.BaserCore.Factory/UsersUserGroups',
-        'plugin.BaserCore.Factory/UserGroups',
-        'plugin.BcCustomContent.Factory/CustomTables',
-    ];
+    public $CustomTablesController;
+    /**
+     * Test subject
+     *
+     * @var ServerRequest
+     */
+    public $request;
 
     /**
      * Set up
@@ -54,11 +56,9 @@ class CustomTablesControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->setFixtureTruncate();
-        parent::setUp();
         $this->loadFixtureScenario(InitAppScenario::class);
-        $request = $this->getRequest('/baser/admin/bc-custom-content/custom_tables/');
-        $this->loginAdmin($request);
+        $this->request = $this->loginAdmin($this->getRequest('/baser/admin/bc-custom-content/custom_tables/'));
+        $this->CustomTablesController = new CustomTablesController($this->request);
     }
 
     /**
@@ -68,7 +68,28 @@ class CustomTablesControllerTest extends BcTestCase
     {
         Configure::clear();
         parent::tearDown();
+        unset($this->CustomTablesController, $this->request);
     }
+
+    /**
+     * test beforeFilter
+     */
+    public function test_beforeFilter()
+    {
+        //action ！== delete 場合、validatePostはTrueを返す
+        $event = new Event('Controller.beforeFilter', $this->CustomTablesController);
+        $this->CustomTablesController->beforeFilter($event);
+        $config = $this->CustomTablesController->FormProtection->getConfig('validate');
+        $this->assertTrue($config);
+
+        //action == delete 場合、validatePostをFalseに設定する
+        $this->CustomTablesController->setRequest($this->request->withParam('action', 'delete'));
+        $event = new Event('Controller.beforeFilter', $this->CustomTablesController);
+        $this->CustomTablesController->beforeFilter($event);
+        $config = $this->CustomTablesController->FormProtection->getConfig('validate');
+        $this->assertFalse($config);
+    }
+
     /**
      * Test beforeAddEvent
      */
@@ -94,6 +115,72 @@ class CustomTablesControllerTest extends BcTestCase
         //イベントに入るかどうか確認
         $customTables = $this->getTableLocator()->get('BcCustomContent.CustomTables');
         $query = $customTables->find()->where(['title' => 'beforeAdd']);
+        $this->assertEquals(1, $query->count());
+        //不要なテーブルを削除
+        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
+        $dataBaseService->dropTable('custom_entry_1_contact');
+    }
+
+    public function test_index()
+    {
+        //サービスクラス
+        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
+        $customTablesAdmin = $this->getService(CustomTablesAdminServiceInterface::class);
+
+        //カスタムテーブルを生成
+        $customTable->create([
+            'id' => 1,
+            'name' => 'test_1',
+            'title' => '求人情報 1',
+            'type' => '1',
+            'display_field' => 'title 1',
+            'has_child' => 0
+        ]);
+        $customTable->create([
+            'id' => 2,
+            'name' => 'test_2',
+            'title' => '求人情報 2',
+            'type' => '1',
+            'display_field' => 'title 2',
+            'has_child' => 0
+        ]);
+
+        //対象メソッドをコール
+        $this->CustomTablesController->index($customTablesAdmin);
+        $vars = $this->CustomTablesController->viewBuilder()->getVars();
+        $entities = ($vars['entities'])->toArray();
+        //戻る値を確認
+        $this->assertCount(2, $entities);
+        $this->assertEquals('test_1', $entities[0]->name);
+        //不要なテーブルを削除
+        $dataBaseService->dropTable('custom_entry_1_test_1');
+        $dataBaseService->dropTable('custom_entry_2_test_2');
+    }
+
+    /**
+     * test add
+     */
+    public function test_add()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        //Postデータを生成
+        $data = [
+            'type' => 'contact',
+            'name' => 'contact',
+            'title' => 'お問い合わせタイトル',
+            'display_field' => 'お問い合わせ'
+        ];
+        //対象URLをコル
+        $this->post('/baser/admin/bc-custom-content/custom_tables/add', $data);
+        $this->assertResponseCode(302);
+        $this->assertFlashMessage('テーブル「お問い合わせタイトル」を追加しました');
+        $this->assertRedirect(['action' => 'edit/1']);
+
+        //データが追加できるか確認すること
+        $customTables = $this->getTableLocator()->get('BcCustomContent.CustomTables');
+        $query = $customTables->find()->where(['title' => 'お問い合わせタイトル']);
         $this->assertEquals(1, $query->count());
         //不要なテーブルを削除
         $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
@@ -132,6 +219,41 @@ class CustomTablesControllerTest extends BcTestCase
         $dataBaseService->dropTable('custom_entry_1_contact');
     }
 
+    public function test_edit()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        //サービスをコル
+        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
+
+        //テストデータを生成
+        $data = [
+            'type' => 'contact',
+            'name' => 'contact',
+            'title' => 'お問い合わせタイトル',
+            'display_field' => 'お問い合わせ'
+        ];
+        $customTable->create($data);
+        //Postデータを生成
+//        $data = CustomFieldFactory::get(1);
+        $data['title'] = 'test edit title';
+        //対象URLをコル
+        $this->post('/baser/admin/bc-custom-content/custom_tables/edit/1', $data);
+
+        //戻る値を確認
+        $this->assertResponseCode(302);
+        $this->assertFlashMessage('テーブル「test edit title」を更新しました');
+        $this->assertRedirect(['action' => 'edit/1']);
+
+        //データが変更できるか確認すること
+        $customTables = $this->getTableLocator()->get('BcCustomContent.CustomTables');
+        $query = $customTables->find()->where(['title' => 'test edit title']);
+        $this->assertEquals(1, $query->count());
+        //不要なテーブルを削除
+        $dataBaseService->dropTable('custom_entry_1_contact');
+    }
+
     /**
      * Test beforeAddEvent
      */
@@ -159,7 +281,6 @@ class CustomTablesControllerTest extends BcTestCase
             $event->setData('data', $data);
         });
         //Postデータを生成
-        $data = CustomFieldFactory::get(1);
         $data['title'] = 'test edit title';
         //対象URLをコル
         $this->post('/baser/admin/bc-custom-content/custom_tables/edit/1', $data);
@@ -168,7 +289,7 @@ class CustomTablesControllerTest extends BcTestCase
         $query = $customTables->find()->where(['title' => 'beforeEdit']);
         $this->assertEquals(1, $query->count());
         //不要なテーブルを削除
-        $dataBaseService->dropTable('custom_entry_1_contact_edit');
+        $dataBaseService->dropTable('custom_entry_1_contact');
     }
 
     /**
@@ -199,7 +320,6 @@ class CustomTablesControllerTest extends BcTestCase
             $contentLinks->save($data);
         });
         //Postデータを生成
-        $data = CustomFieldFactory::get(1);
         $data['title'] = 'test edit title';
         //対象URLをコル
         $this->post('/baser/admin/bc-custom-content/custom_tables/edit/1', $data);
@@ -208,6 +328,36 @@ class CustomTablesControllerTest extends BcTestCase
         $query = $customTables->find()->where(['title' => 'afterEdit']);
         $this->assertEquals(1, $query->count());
         //不要なテーブルを削除
-        $dataBaseService->dropTable('custom_entry_1_contact_edit');
+        $dataBaseService->dropTable('custom_entry_1_contact');
+    }
+
+    /**
+     * test delete
+     */
+    public function test_delete()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        //サービスをコル
+        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
+
+        //テストデータを生成
+        $data = [
+            'type' => 'contact',
+            'name' => 'contact',
+            'title' => 'お問い合わせタイトル',
+            'display_field' => 'お問い合わせ'
+        ];
+        $customTable->create($data);
+        //対象URLをコル
+        $this->post('/baser/admin/bc-custom-content/custom_tables/delete/1');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertFlashMessage('テーブル「お問い合わせタイトル」を削除しました。');
+        //テーブルが削除されたか確認すること。
+        $this->assertFalse($dataBaseService->tableExists('custom_entry_1_contact'));
     }
 }

@@ -30,21 +30,6 @@ class CustomContentsControllerTest extends BcTestCase
     use IntegrationTestTrait;
 
     /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'plugin.BaserCore.Factory/Sites',
-        'plugin.BaserCore.Factory/SiteConfigs',
-        'plugin.BaserCore.Factory/Users',
-        'plugin.BaserCore.Factory/UsersUserGroups',
-        'plugin.BaserCore.Factory/UserGroups',
-        'plugin.BcCustomContent.Factory/CustomContents',
-        'plugin.BaserCore.Factory/Contents',
-    ];
-
-    /**
      * Access Token
      * @var string
      */
@@ -61,7 +46,6 @@ class CustomContentsControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
-        $this->setFixtureTruncate();
         parent::setUp();
         $this->loadFixtureScenario(InitAppScenario::class);
         $token = $this->apiLoginAdmin(1);
@@ -91,7 +75,7 @@ class CustomContentsControllerTest extends BcTestCase
         $this->assertResponseOk();
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertCount(2, $result->customContents);
+        $this->assertCount(3, $result->customContents);
     }
 
     /**
@@ -108,7 +92,7 @@ class CustomContentsControllerTest extends BcTestCase
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals($result->customContent->description, 'サービステスト');
-        $this->assertEquals($result->customContent->content->url, '/');
+        $this->assertEquals($result->customContent->content->url, '/test/');
 
         //エラーを発生した時の確認
         $this->get('/baser/api/bc-custom-content/custom_contents/view/10.json?token=' . $this->accessToken);

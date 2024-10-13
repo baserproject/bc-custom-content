@@ -11,7 +11,6 @@
 
 namespace BcCustomContent\Model\Table;
 
-use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Table\AppTable;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -26,18 +25,13 @@ use Cake\Validation\Validator;
  */
 class CustomTablesTable extends AppTable
 {
-
-    /**
-     * Trait
-     */
-    use BcEventDispatcherTrait;
-
     /**
      * Initialize
      *
      * @param array $config
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -58,6 +52,9 @@ class CustomTablesTable extends AppTable
 
     /**
      * ツリー構造形式の関連フィールドを hasMany で設定する
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setHasManyLinksByThreaded()
     {
@@ -72,6 +69,9 @@ class CustomTablesTable extends AppTable
 
     /**
      * ツリー構造形式ではない通常一覧の関連フィールドを hasMany で設定する
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setHasManyLinksByAll()
     {
@@ -88,6 +88,9 @@ class CustomTablesTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -96,10 +99,11 @@ class CustomTablesTable extends AppTable
             ->maxLength('name', 255, __d('baser_core', '255文字以内で入力してください。'))
             ->notEmptyString('name', __d('baser_core', '識別名を入力してください。'))
             ->regex('name', '/^[a-z0-9_]+$/', __d('baser_core', '識別名は半角英数字とアンダースコアのみで入力してください。'))
-            ->add('name', [[
-                'rule' => ['validateUnique'],
-                'provider' => 'table',
-                'message' => __d('baser_core', '既に登録のある識別名です。')
+            ->add('name', [
+                'validateUnique' => [
+                    'rule' => ['validateUnique'],
+                    'provider' => 'table',
+                    'message' => __d('baser_core', '既に登録のある識別名です。')
             ]]);
         $validator
             ->scalar('title')

@@ -12,12 +12,10 @@
 namespace BcCustomContent\Model\Table;
 
 use ArrayObject;
-use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Table\AppTable;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use BcCustomContent\Model\Entity\CustomField;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
@@ -31,18 +29,13 @@ use Cake\Validation\Validator;
  */
 class CustomLinksTable extends AppTable
 {
-
-    /**
-     * Trait
-     */
-    use BcEventDispatcherTrait;
-
     /**
      * Initialize
      *
      * @param array $config
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -62,6 +55,9 @@ class CustomLinksTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -69,21 +65,30 @@ class CustomLinksTable extends AppTable
             ->scalar('name')
             ->maxLength('name', 255, __d('baser_core', '255文字以内で入力してください。'))
             ->notEmptyString('name', __d('baser_core', 'フィールド名を入力してください。'))
-            ->regex('name', '/^[a-z0-9_]+$/', __d('baser_core', 'フィールド名は半角英数字とアンダースコアのみで入力してください。'))
-            ->add('name', [[
-                'rule' => ['validateUnique', ['scope' => 'custom_table_id']],
-                'provider' => 'table',
-                'message' => __d('baser_core', '既に登録のあるフィールド名です。')
+            ->regex('name', '/^[a-z0-9_]+$/', __d('baser_core', 'フィールド名は半角小文字英数字とアンダースコアのみで入力してください。'))
+            ->add('name', [
+                'validateUnique' => [
+                    'rule' => ['validateUnique', ['scope' => 'custom_table_id']],
+                    'provider' => 'table',
+                    'message' => __d('baser_core', '既に登録のあるフィールド名です。')
             ]])
-            ->add('name', [[
-                'rule' => ['reserved'],
-                'provider' => 'bc',
-                'message' => __d('baser_core', '{0} はシステム予約名称のため利用できません。', implode(', ', Configure::read('BcApp.reservedWords')))
+            ->add('name', [
+                'reserved' => [
+                    'rule' => ['reserved'],
+                    'provider' => 'bc',
+                    'message' => __d('baser_core', 'システム予約名称のため利用できません。')
             ]]);
         $validator
             ->scalar('title')
             ->maxLength('title', 255, __d('baser_core', '255文字以内で入力してください。'))
-            ->notEmptyString('title', __d('baser_core', 'タイトルを入力してください。'));
+            ->notEmptyString('title', __d('baser_core', 'タイトルを入力してください。'))
+            ->add('title', [
+                'notBlankOnlyString' => [
+                    'rule' => ['notBlankOnlyString'],
+                    'provider' => 'bc',
+                    'message' => __d('baser_core', 'タイトルを入力してください。')
+                ]
+            ]);
 
         return $validator;
     }
@@ -94,6 +99,9 @@ class CustomLinksTable extends AppTable
      * scope の設定のため、TreeBehavior より優先度を高くする
      *
      * @return array
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function implementedEvents(): array
     {
@@ -113,6 +121,9 @@ class CustomLinksTable extends AppTable
      * ツリービヘイビアのスコープを設定する
      *
      * @param int $tableId
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function setTreeScope(int $tableId): void
     {
@@ -125,6 +136,9 @@ class CustomLinksTable extends AppTable
      * @param EntityInterface $entity
      * @param ArrayObject $options
      * @return bool|void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -140,6 +154,9 @@ class CustomLinksTable extends AppTable
      * @param EventInterface $event
      * @param EntityInterface $entity
      * @param ArrayObject $options
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -151,6 +168,9 @@ class CustomLinksTable extends AppTable
      * 並び順を更新する
      *
      * @param array $customLinks
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function updateSort(array $customLinks)
     {
@@ -174,6 +194,7 @@ class CustomLinksTable extends AppTable
      * @return bool|int|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getCurentSort(int $id, int $tableId, $parentId)
     {
@@ -186,7 +207,7 @@ class CustomLinksTable extends AppTable
         $contents = $this->find()
             ->select(['id', 'parent_id', 'title'])
             ->where($conditions)
-            ->order('lft');
+            ->orderBy('lft');
         $order = null;
         if (!$contents->all()->isEmpty()) {
             foreach($contents as $key => $data) {
@@ -204,11 +225,12 @@ class CustomLinksTable extends AppTable
     /**
      * オフセットを元に関連フィールドを移動する
      *
-     * @param $id
+     * @param $field
      * @param $offset
      * @return EntityInterface|bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function moveOffset($field, $offset)
     {
@@ -229,6 +251,9 @@ class CustomLinksTable extends AppTable
      * @param string $name
      * @param int $tableId
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getUniqueName(string $name, int $tableId)
     {
@@ -236,7 +261,7 @@ class CustomLinksTable extends AppTable
         $entities = $this->find()
             ->select('name')
             ->where(['name LIKE' => $name . '%', 'custom_table_id' => $tableId])
-            ->order('name')
+            ->orderBy('name')
             ->all()
             ->toArray();
         if (!$entities) return $name;
