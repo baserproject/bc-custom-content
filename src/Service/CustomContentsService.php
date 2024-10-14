@@ -175,9 +175,17 @@ class CustomContentsService implements CustomContentsServiceInterface
         if (BcUtil::isOverPostSize()) {
             throw new BcException(__d('baser_core', '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。', ini_get('post_max_size')));
         }
-        if($postData['custom_table_id']) {
+        if ($postData['custom_table_id']) {
             $options['validate'] = 'withTable';
         }
+
+        if (Configure::read('BcContents.autoUpdateContentCreatedDate')
+            && isset($postData['content']['modified_date'])
+            && $entity->content->modified_date == $postData['content']['modified_date']
+        ) {
+            $postData['content']['modified_date'] = date('Y-m-d H:i:s');
+        }
+
         $entity = $this->CustomContents->patchEntity($entity, $postData, $options);
         return $this->CustomContents->saveOrFail($entity);
     }
@@ -319,9 +327,9 @@ class CustomContentsService implements CustomContentsServiceInterface
      */
     public function getList(): array
     {
-        return $this->CustomContents->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'content.title'
-        ])->contain(['Contents'])->toArray();
+        return $this->CustomContents->find('list',
+            keyField: 'id',
+            valueField: 'content.title'
+        )->contain(['Contents'])->toArray();
     }
 }
