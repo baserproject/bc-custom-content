@@ -25,6 +25,7 @@ use Cake\View\Helper;
  * @property BcAdminFormHelper $BcAdminForm
  * @property BcTimeHelper $BcTime
  */
+#[\AllowDynamicProperties]
 class BcCcDateTimeHelper extends Helper
 {
 
@@ -32,7 +33,7 @@ class BcCcDateTimeHelper extends Helper
      * Helper
      * @var string[]
      */
-    public $helpers = [
+    public array $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form'],
         'BaserCore.BcTime'
     ];

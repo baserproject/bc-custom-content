@@ -75,7 +75,10 @@ class CustomLinksService implements CustomLinksServiceInterface
             $conditions = $this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish();
             $conditions = array_merge($conditions, ['CustomLinks.status' => true]);
         }
-        return $this->CustomLinks->get($id, ['contain' => $options['contain'], 'conditions' => $conditions]);
+        return $this->CustomLinks->get($id,
+            contain: $options['contain'],
+            conditions: $conditions
+        );
     }
 
     /**
@@ -107,8 +110,8 @@ class CustomLinksService implements CustomLinksServiceInterface
             $findOptions['for'] = $options['for'];
         }
 
-        $query = $this->CustomLinks->find($options['finder'], $findOptions)
-            ->order('CustomLinks.lft ASC');
+        $query = $this->CustomLinks->find($options['finder'], ...$findOptions)
+            ->orderBy('CustomLinks.lft ASC');
 
         $conditions = ['CustomLinks.custom_table_id' => $tableId];
 
@@ -123,6 +126,8 @@ class CustomLinksService implements CustomLinksServiceInterface
             );
         }
 
+        if (is_null($options['contain']))
+            $options['contain'] = [];
         return $query->where($conditions)->contain($options['contain']);
     }
 
@@ -138,7 +143,7 @@ class CustomLinksService implements CustomLinksServiceInterface
     {
         $conditions = ['CustomLinks.custom_table_id' => $tableId];
         return $this->CustomLinks
-            ->find('list', ['keyField' => 'id', 'valueField' => 'title'])
+            ->find('list', keyField: 'id', valueField: 'title')
             ->where($conditions)->toArray();
     }
 

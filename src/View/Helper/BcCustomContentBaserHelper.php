@@ -22,6 +22,7 @@ use BaserCore\Annotation\Checked;
  *
  * BcBaserHelper より透過的に呼び出されるヘルパー
  */
+#[\AllowDynamicProperties]
 class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperInterface
 {
 
@@ -29,7 +30,7 @@ class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperIn
      * ヘルパー
      * @var array
      */
-    public $helpers = [
+    public array $helpers = [
         'BcCustomContent.CustomContent',
     ];
 
@@ -39,6 +40,7 @@ class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperIn
      * @return array[]
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function methods(): array
     {
@@ -52,6 +54,7 @@ class BcCustomContentBaserHelper extends Helper implements BcPluginBaserHelperIn
             'isDisplayCustomField' => ['CustomContent', 'isDisplayField'],
             'getCustomFieldTitle' => ['CustomContent', 'getFieldTitle'],
             'getCustomFieldValue' => ['CustomContent', 'getFieldValue'],
+            'getCustomContentTitle' => ['CustomContent', 'getTitle'],
         ];
     }
 

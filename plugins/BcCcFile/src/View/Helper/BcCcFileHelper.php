@@ -26,6 +26,7 @@ use Cake\View\Helper;
  *
  * @property BcAdminFormHelper $BcAdminForm
  */
+#[\AllowDynamicProperties]
 class BcCcFileHelper extends Helper
 {
 
@@ -33,7 +34,7 @@ class BcCcFileHelper extends Helper
      * Helper
      * @var string[]
      */
-    public $helpers = [
+    public array $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form']
     ];
 
@@ -85,6 +86,15 @@ class BcCcFileHelper extends Helper
 			'imgsize' => 'thumb'
 		], $options);
 
+        $entity = $options['entity'];
+        unset(
+            $options['entity'],
+            $options['beforeHead'],
+            $options['afterHead'],
+            $options['beforeLinefeed'],
+            $options['afterLinefeed']
+        );
+
 		if($fieldValue) {
 			if($options['output'] === 'tag') {
 				$checkValue = $fieldValue;
@@ -92,10 +102,10 @@ class BcCcFileHelper extends Helper
 					$checkValue = $options['tmp'];
 				}
 				if(is_string($checkValue) && in_array(pathinfo($checkValue, PATHINFO_EXTENSION), ['png', 'gif', 'jpeg', 'jpg'])) {
-					$output = $this->BcAdminForm->BcUpload->uploadImage($link->name, $options['entity'], $options);
+					$output = $this->BcAdminForm->BcUpload->uploadImage($link->name, $entity, $options);
 				} else {
 					$options['label'] = $link->title;
-					$output = $this->BcAdminForm->BcUpload->fileLink($link->name, $options['entity'], $options);
+					$output = $this->BcAdminForm->BcUpload->fileLink($link->name, $entity, $options);
 				}
 			} elseif($options['output'] === 'url') {
 			    if(is_string($fieldValue)) {
