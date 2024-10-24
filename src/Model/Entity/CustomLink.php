@@ -58,7 +58,6 @@ class CustomLink extends Entity
      * @return bool
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function isGroupSelectable(): bool
     {

@@ -24,7 +24,6 @@ use Cake\View\Helper;
  *
  * @property BcAdminFormHelper $BcAdminForm
  */
-#[\AllowDynamicProperties]
 class BcCcWysiwygHelper extends Helper
 {
 
@@ -32,7 +31,7 @@ class BcCcWysiwygHelper extends Helper
      * Helper
      * @var string[]
      */
-    public array $helpers = [
+    public $helpers = [
         'BaserCore.BcAdminForm' => ['templates' => 'BaserCore.bc_form']
     ];
 

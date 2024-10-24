@@ -90,10 +90,7 @@ class CustomFieldsService implements CustomFieldsServiceInterface
      */
     public function get(int $id, array $options = [])
     {
-        $options = array_merge([
-            'contain' => []
-        ], $options);
-        return $this->CustomFields->get($id, contain: $options['contain']);
+        return $this->CustomFields->get($id, $options);
     }
 
     /**

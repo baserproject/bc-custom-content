@@ -34,9 +34,6 @@ class CustomTable extends Entity
      *
      * @param CustomTable $table
      * @return bool
-     * @Checked
-     * @noTodo
-     * @unitTest
      */
     public function isContentTable(): bool
     {

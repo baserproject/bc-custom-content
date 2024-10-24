@@ -81,10 +81,7 @@ class CustomTablesService implements CustomTablesServiceInterface
      */
     public function get(int $id, $options = [])
     {
-        $options = array_merge([
-            'contain' => []
-        ], $options);
-        return $this->CustomTables->get($id, contain: $options['contain']);
+        return $this->CustomTables->get($id, $options);
     }
 
     /**
@@ -327,10 +324,10 @@ class CustomTablesService implements CustomTablesServiceInterface
         if ($field === 'display_field') {
             $displayFields = [];
             if($options['id']) {
-                $displayFields = $this->CustomTables->CustomLinks->find('list',
-                    keyField: 'name',
-                    valueField: 'title'
-                )->where(['custom_table_id' => $options['id']])->toArray();
+                $displayFields = $this->CustomTables->CustomLinks->find('list', [
+                    'keyField' => 'name',
+                    'valueField' => 'title'
+                ])->where(['custom_table_id' => $options['id']])->toArray();
             }
             return array_merge(['title' => __d('baser_core', 'タイトル'), 'name' => __d('baser_core', 'スラッグ')], $displayFields);
         }

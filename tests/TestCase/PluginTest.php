@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
  * Copyright (c) NPO baser foundation <https://baserfoundation.org/>
@@ -9,14 +10,14 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Test\TestCase\Model\Table;
+namespace BcCustomContent\Test\TestCase;
 
 use BaserCore\TestSuite\BcTestCase;
 
 /**
- * CustomContentsTableTest
+ * PluginTest
  */
-class CustomContentsTableTest extends BcTestCase
+class PluginTest extends BcTestCase
 {
 
     /**

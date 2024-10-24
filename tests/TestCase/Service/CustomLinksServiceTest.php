@@ -102,7 +102,7 @@ class CustomLinksServiceTest extends BcTestCase
 
         //存在しないカスタムリンクを削除
         $this->expectException(RecordNotFoundException::class);
-        $this->expectExceptionMessage('Record not found in table `custom_links`');
+        $this->expectExceptionMessage('Record not found in table "custom_links"');
         $this->CustomLinksService->delete(1);
     }
 
@@ -164,7 +164,7 @@ class CustomLinksServiceTest extends BcTestCase
 
         //存在しないIDを指定した場合、
         $this->expectException(RecordNotFoundException::class);
-        $this->expectExceptionMessage('Record not found in table `custom_links`');
+        $this->expectExceptionMessage('Record not found in table "custom_links"');
         $this->CustomLinksService->get(11);
     }
 
@@ -205,7 +205,7 @@ class CustomLinksServiceTest extends BcTestCase
         //lft / rght を最新にするかどうか確認すること
         $newLink = $this->CustomLinksService->get(1);
         $this->assertEquals(1, $newLink->lft);
-        $this->assertEquals(4, $newLink->rght);
+        $this->assertEquals(2, $newLink->rght);
         //不要なテーブルを削除
         $dataBaseService->dropTable('custom_entry_1_recruit_category');
     }
