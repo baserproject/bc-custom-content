@@ -11,6 +11,7 @@
 
 namespace BcCustomContent\View\Helper;
 
+use BaserCore\Error\BcException;
 use BaserCore\Utility\BcUtil;
 use BaserCore\View\Helper\BcAdminFormHelper;
 use BcCustomContent\Model\Entity\CustomEntry;
