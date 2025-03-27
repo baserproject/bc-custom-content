@@ -29,6 +29,7 @@ use BcCustomContent\Utility\CustomContentUtil;
 use BcCustomContent\View\Helper\CustomContentArrayTrait;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
@@ -396,10 +397,14 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         }
 
         if (is_numeric($id)) {
-            $conditions = array_merge_recursive(
-                $conditions,
-                ['CustomEntries.id' => $id]
-            );
+            $conditions = array_merge_recursive($conditions, [
+                'CustomEntries.id' => $id,
+            ]);
+            if($options['status'] === 'publish') {
+                $conditions = array_merge_recursive($conditions, [
+                    'CustomEntries.name' => ''
+                ]);
+            }
         } else {
             $conditions = array_merge_recursive(
                 $conditions,
@@ -407,12 +412,17 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             );
         }
 
-        return $this->CustomEntries->find()
+        $entity = $this->CustomEntries->find()
             ->select($this->createSelect($options))
             ->select($this->CustomEntries->CustomTables)
             ->where($conditions)
             ->contain($options['contain'])
             ->first();
+        if (!$entity) {
+            throw new RecordNotFoundException();
+        } else {
+            return $entity;
+        }
     }
 
     /**
