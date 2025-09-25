@@ -13,7 +13,9 @@ namespace BcCustomContent\Service;
 
 use BaserCore\Utility\BcContainerTrait;
 use BcCustomContent\Model\Table\CustomLinksTable;
+use BcCustomContent\Utility\CustomContentUtil;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\QueryInterface;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
@@ -88,7 +90,7 @@ class CustomLinksService implements CustomLinksServiceInterface
      *
      * @param int $tableId
      * @param array $options
-     * @return \Cake\ORM\Query
+     * @return QueryInterface
      * @checked
      * @noTodo
      * @unitTest
@@ -98,6 +100,8 @@ class CustomLinksService implements CustomLinksServiceInterface
         $options = array_merge([
             'finder' => 'threaded',
             'status' => null,
+            'limit' => null,
+            'page' => null,
             'for' => null,
             'contain' => [
                 'CustomFields',
@@ -115,10 +119,42 @@ class CustomLinksService implements CustomLinksServiceInterface
         $query = $this->CustomLinks->find($options['finder'], ...$findOptions)
             ->orderBy('CustomLinks.lft ASC');
 
-        $conditions = ['CustomLinks.custom_table_id' => $tableId];
+        if (!is_null($options['limit'])) {
+            if(!is_null($options['page'])) {
+                $query = $query->limit($options['limit'])->page($options['page']);
+            } else {
+                $query = $query->limit($options['limit']);
+            }
+        }
+        return $this->createIndexConditions($query, $tableId, $options);
+    }
 
-        if ($options['status'] === 'publish') {
-            $options ['contain'] = ['CustomTables' => ['CustomContents' => ['Contents']]];
+    /**
+     * 関連フィールドのインデックス条件を作成する
+     * @param QueryInterface $query
+     * @param int $tableId
+     * @param array $params
+     * @return QueryInterface
+     * @noTodo
+     * @checked
+     * @unitTest
+     */
+    public function createIndexConditions(QueryInterface $query, int $tableId, array $params): QueryInterface
+    {
+        $params = array_merge([
+            'name' => null,
+            'status' => null,
+        ], $params);
+
+        $conditions = ['CustomLinks.custom_table_id' => $tableId];
+        if ($params['status'] === 'publish') {
+            $publishContain = ['CustomTables' => ['CustomContents' => ['Contents']]];
+            if (!isset($params['contain'])) {
+                $params['contain'] = $publishContain;
+            } else {
+                // 既存のcontainと公開用のcontainをマージ
+                $params['contain'] = array_merge_recursive($params['contain'], $publishContain);
+            }
             $fields = $this->CustomLinks->getSchema()->columns();
             $query->select($fields);
             $conditions = array_merge(
@@ -127,10 +163,12 @@ class CustomLinksService implements CustomLinksServiceInterface
                 $this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish()
             );
         }
+        if(!is_null($params['name'])) {
+            $conditions = array_merge($conditions, ['CustomLinks.name' => $params['name']]);
+        }
 
-        if (is_null($options['contain']))
-            $options['contain'] = [];
-        return $query->where($conditions)->contain($options['contain']);
+        if (!isset($params['contain']) || is_null($params['contain'])) $params['contain'] = [];
+        return $query->where($conditions)->contain($params['contain']);
     }
 
     /**
@@ -167,7 +205,10 @@ class CustomLinksService implements CustomLinksServiceInterface
             $entity = $this->CustomLinks->saveOrFail($entity);
             /** @var CustomEntriesService $customEntriesService */
             $customEntriesService = $this->getService(CustomEntriesServiceInterface::class);
-            $customEntriesService->addField($entity->custom_table_id, $entity->name, $entity->type);
+            $field = $this->CustomLinks->CustomFields->get($entity->custom_field_id);
+            $columnType = CustomContentUtil::getPluginSetting($field->type, 'columnType');
+            if (!$columnType) $columnType = 'text';
+            $customEntriesService->addField($entity->custom_table_id, $entity->name, $columnType);
         } catch (\Throwable $e) {
             $this->CustomLinks->getConnection()->rollback();
             throw $e;
