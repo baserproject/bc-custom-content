@@ -887,23 +887,21 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             $operator = '<';
         }
         $query = $this->CustomEntries->find()
-            ->where([
+            ->where(array_merge_recursive([
                 'CustomEntries.custom_table_id' => $entry->custom_table_id,
-                'CustomEntries.status' => true,
                 'CustomEntries.' . $orderField . ' ' . $operator => $entry->{$orderField}
-            ])
+            ], $this->CustomEntries->getConditionAllowPublish()))
             ->orderBy($orderBy)
             ->limit(1);
         $prev = $query->first();
         // 同じ値の場合はidで判定
         if (!$prev) {
             $query = $this->CustomEntries->find()
-                ->where([
+                ->where(array_merge_recursive([
                     'CustomEntries.custom_table_id' => $entry->custom_table_id,
-                    'CustomEntries.status' => true,
                     'CustomEntries.' . $orderField => $entry->{$orderField},
                     'CustomEntries.id ' . $operator => $entry->id
-                ])
+                ], $this->CustomEntries->getConditionAllowPublish()))
                 ->orderBy($orderBy)
                 ->limit(1);
             $prev = $query->first();
@@ -934,23 +932,21 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         $operator = $orderDirection === 'DESC' ? '<' : '>';
 
         $query = $this->CustomEntries->find()
-            ->where([
+            ->where(array_merge_recursive([
                 'CustomEntries.custom_table_id' => $entry->custom_table_id,
-                'CustomEntries.status' => true,
-                'CustomEntries.' . $orderField . ' ' . $operator => $entry->{$orderField}
-            ])
+                $orderField . ' ' . $operator => $entry->{$orderField}
+            ], $this->CustomEntries->getConditionAllowPublish()))
             ->orderBy($orderBy)
             ->limit(1);
         $next = $query->first();
         // 同じ値の場合はidで判定
         if (!$next) {
             $query = $this->CustomEntries->find()
-                ->where([
+                ->where(array_merge_recursive([
                     'CustomEntries.custom_table_id' => $entry->custom_table_id,
-                    'CustomEntries.status' => true,
                     'CustomEntries.' . $orderField => $entry->{$orderField},
                     'CustomEntries.id ' . $operator => $entry->id
-                ])
+                ], $this->CustomEntries->getConditionAllowPublish()))
                 ->orderBy($orderBy)
                 ->limit(1);
             $next = $query->first();
