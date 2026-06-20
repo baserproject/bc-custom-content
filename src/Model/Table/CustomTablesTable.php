@@ -58,6 +58,10 @@ class CustomTablesTable extends AppTable
      */
     public function setHasManyLinksByThreaded()
     {
+        // CakePHP 5.2 では同名アソシエーションの再設定が例外となるため、既存があれば削除してから設定する
+        if ($this->associations()->has('CustomLinks')) {
+            $this->associations()->remove('CustomLinks');
+        }
         // 関連フィールドは削除される
         $this->hasMany('CustomLinks')
             ->setClassName('BcCustomContent.CustomLinks')
@@ -75,6 +79,10 @@ class CustomTablesTable extends AppTable
      */
     public function setHasManyLinksByAll()
     {
+        // CakePHP 5.2 では同名アソシエーションの再設定が例外となるため、既存があれば削除してから設定する
+        if ($this->associations()->has('CustomLinks')) {
+            $this->associations()->remove('CustomLinks');
+        }
         $this->hasMany('CustomLinks')
             ->setClassName('BcCustomContent.CustomLinks')
             ->setForeignKey('custom_table_id')
@@ -98,7 +106,7 @@ class CustomTablesTable extends AppTable
             ->scalar('name')
             ->maxLength('name', 255, __d('baser_core', '255文字以内で入力してください。'))
             ->notEmptyString('name', __d('baser_core', '識別名を入力してください。'))
-            ->regex('name', '/^[a-z0-9_]+$/', __d('baser_core', '識別名は半角英数字とアンダースコアのみで入力してください。'))
+            ->regex('name', '/^[a-z0-9_]+$/', __d('baser_core', '識別名は半角英数小文字とアンダースコアのみで入力してください。'))
             ->add('name', [
                 'validateUnique' => [
                     'rule' => ['validateUnique'],
