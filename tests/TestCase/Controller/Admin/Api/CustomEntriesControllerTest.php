@@ -115,10 +115,8 @@ class CustomEntriesControllerTest extends BcTestCase
         //ステータスを確認
         $this->assertResponseCode(500);
         $result = json_decode((string)$this->_response->getBody());
-        // CakePHP 5.2 では、存在しないテーブルのスキーマ取得時に PDO の生エラーではなく
-        // 「Could not describe columns on `テーブル名`」という例外メッセージになる。
         $this->assertEquals(
-            "データベース処理中にエラーが発生しました。Could not describe columns on `custom_entry_1_recruit_categories`",
+            "データベース処理中にエラーが発生しました。SQLSTATE[42S02]: Base table or view not found: 1146 Table 'test_basercms.custom_entry_1_recruit_categories' doesn't exist",
             $result->message
         );
     }

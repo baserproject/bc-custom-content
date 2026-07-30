@@ -345,8 +345,6 @@ class CustomEntriesTable extends AppTable
             $fileExt = explode(',', $link->custom_field->meta['BcCustomContent']['file_ext']);
         }
 
-        // CakePHP 5.2 では同名バリデーションルールの再追加が例外となるため、再設定できるよう既存を削除してから追加する
-        $validator->remove($link->name, 'fileExt');
         $validator->add($link->name, [
             'fileExt' => [
                 'provider' => 'bc',
@@ -401,8 +399,6 @@ class CustomEntriesTable extends AppTable
         if ($field->regex) {
             $regex = str_replace('\|', '|', $field->regex);
             $regex = str_replace("\0", '', $regex); // ヌルバイト除去
-            // CakePHP 5.2 では同名バリデーションルールの再追加が例外となるため、再設定できるよう既存を削除してから追加する
-            $validator->remove($link->name, 'regex');
             $validator->regex(
                 $link->name,
                 '/\A' . $regex . '\z/us',
@@ -426,15 +422,12 @@ class CustomEntriesTable extends AppTable
     {
         $field = $link->custom_field;
         if ($field->validate && is_array($field->validate) && in_array('EMAIL', $field->validate)) {
-            // CakePHP 5.2 では同名ルールの重複が例外となる。regex() は既定で 'regex' を使い
-            // setValidateRegex() の 'regex' と衝突するため、別名のカスタムルールとして追加する。
-            $validator->email($link->name, false, __d('baser_core', 'Eメール形式で入力してください。'));
-            $validator->add($link->name, [
-                'emailHankaku' => [
-                    'rule' => ['custom', '/^[a-zA-Z0-9!#$%&\’*+-\/=?^_`{|}~@.]*$/'],
-                    'message' => __d('baser_core', '半角で入力してください。')
-                ]
-            ]);
+            $validator->email($link->name, false, __d('baser_core', 'Eメール形式で入力してください。'))
+                ->regex(
+                    $link->name,
+                    '/^[a-zA-Z0-9!#$%&\’*+-\/=?^_`{|}~@.]*$/',
+                    __d('baser_core', '半角で入力してください。')
+                );
         }
         return $validator;
     }

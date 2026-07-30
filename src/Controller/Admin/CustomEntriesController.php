@@ -42,14 +42,13 @@ class CustomEntriesController extends CustomContentAdminAppController
      */
     public function beforeFilter(EventInterface $event)
     {
-        parent::beforeFilter($event);
-        if ($event->getResult()) return;
+        $response = parent::beforeFilter($event);
+        if($response) return $response;
 
         $tableId = $this->request->getParam('pass.0');
         if (!$tableId) {
             $this->BcMessage->setWarning(__d('baser_core', 'カスタムコンテンツにカスタムテーブルが紐付けられていません。カスタムコンテンツの編集画面よりカスタムテーブルを選択してください。'));
-            $event->setResult($this->redirect(['plugin' => 'BaserCore', 'controller' => 'Contents', 'action' => 'index']));
-            return;
+            return $this->redirect(['plugin' => 'BaserCore', 'controller' => 'Contents', 'action' => 'index']);
         }
 
         /** @var CustomTablesService $entriesService */
