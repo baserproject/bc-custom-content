@@ -62,6 +62,7 @@ class CustomContentsTable extends AppTable
         $validator->setProvider('bc', 'BaserCore\Model\Validation\BcValidation');
         $validator->allowEmptyString('list_count')
             ->range('list_count', [0, 100], __d('baser_core', '一覧表示件数は100までの数値で入力してください。'))
+            ->notEmptyString('list_count', '一覧表示件数を入力してください。')
             ->add('list_count', 'halfText', [
                 'provider' => 'bc',
                 'rule' => 'halfText',
@@ -74,7 +75,7 @@ class CustomContentsTable extends AppTable
      * @param EventInterface $event
      * @param EntityInterface $entity
      * @param \ArrayObject $options
-     * @return boolean
+     * @return void
      * @checked
      * @noTodo
      * @unitTest
@@ -82,12 +83,11 @@ class CustomContentsTable extends AppTable
     public function beforeSave(EventInterface $event, EntityInterface $entity, \ArrayObject $options)
     {
         if (!Plugin::isLoaded('BcSearchIndex')) {
-            return true;
+            return;
         }
         if (empty($entity->content) || !empty($entity->content->exclude_search)) {
             $this->setExcluded();
         }
-        return true;
     }
 
     /**
