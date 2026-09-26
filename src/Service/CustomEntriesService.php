@@ -160,7 +160,6 @@ class CustomEntriesService implements CustomEntriesServiceInterface
     {
         $options = array_merge([
             'limit' => null,
-            'page' => null,    // ページ番号
             'direction' => '',    // 並び方向
             'order' => '',    // 並び順対象のフィールド
             'contain' => [],
@@ -181,14 +180,10 @@ class CustomEntriesService implements CustomEntriesServiceInterface
         }
 
         if (!empty($options['limit'])) {
-            if (!empty($options['page'])) {
-                $query->page($options['page'], $options['limit']);
-            } else {
-                $query->limit($options['limit']);
-            }
+            $query->limit($options['limit']);
         }
 
-        unset($options['order'], $options['direction'], $options['limit'], $options['page']);
+        unset($options['order'], $options['direction'], $options['limit']);
 
         if (!empty($options)) {
             $query = $this->createIndexConditions($query, $options);
