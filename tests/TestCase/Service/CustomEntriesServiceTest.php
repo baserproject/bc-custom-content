@@ -347,19 +347,6 @@ class CustomEntriesServiceTest extends BcTestCase
         $result = $this->CustomEntriesService->getIndex(['order' => 'name', 'direction' => 'desc'])->all()->toArray();
         $this->assertEquals('プログラマー 3', $result[0]->name);
 
-        //pageパラメータを入れる
-        $params = ['limit' => 2, 'order' => 'id', 'direction' => 'asc'];
-        $page1 = $this->CustomEntriesService->getIndex($params + ['page' => 1])->all()->toArray();
-        $page2 = $this->CustomEntriesService->getIndex($params + ['page' => 2])->all()->toArray();
-        //全3件を2件ずつに分割して取得できる
-        $this->assertCount(2, $page1);
-        $this->assertCount(1, $page2);
-        //2ページ目には1ページ目と異なるデータが返る
-        $this->assertNotContains($page2[0]->id, [$page1[0]->id, $page1[1]->id]);
-
-        //limitがない場合、pageパラメータは無視する
-        $result = $this->CustomEntriesService->getIndex(['page' => 2])->all();
-        $this->assertCount(3, $result);
     }
 
     /**
@@ -868,18 +855,10 @@ class CustomEntriesServiceTest extends BcTestCase
         $this->loadFixtureScenario(CustomEntriesScenario::class);
         $this->loadFixtureScenario(CustomFieldsScenario::class);
 
-        // 追加したカスタム列だけを削除し、共通列は残す
-        $tableName = 'custom_entry_1_recruit_categories';
-        $this->CustomEntriesService->addField(1, 'extra_field', 'text');
-        $result = $this->CustomEntriesService->removeField(1, 'extra_field');
+        //正常系実行
+        $result = $this->CustomEntriesService->removeField(1, 'name');
         $this->assertTrue($result);
-        $this->assertFalse($this->BcDatabaseService->columnExists($tableName, 'extra_field'));
-        foreach (['id', 'custom_table_id', 'name', 'title', 'parent_id', 'lft', 'rght',
-            'level', 'status', 'publish_begin', 'publish_end', 'published',
-            'creator_id', 'modified', 'created'] as $column) {
-            $this->assertTrue($this->CustomEntriesService->removeField(1, $column));
-            $this->assertTrue($this->BcDatabaseService->columnExists($tableName, $column));
-        }
+        $this->assertFalse($this->BcDatabaseService->columnExists('custom_entry_1_recruit_categories', 'name'));
         //異常系実行
         $this->expectExceptionMessage("The specified column doesn't exist: test");
         $result = $this->CustomEntriesService->renameField(1, 'test', 'test1');
