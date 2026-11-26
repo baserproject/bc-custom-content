@@ -347,6 +347,24 @@ class CustomEntriesServiceTest extends BcTestCase
         $result = $this->CustomEntriesService->getIndex(['order' => 'name', 'direction' => 'desc'])->all()->toArray();
         $this->assertEquals('プログラマー 3', $result[0]->name);
 
+        //pageパラメータを入れる
+        $params = ['limit' => 2, 'order' => 'id', 'direction' => 'asc'];
+        $page1 = $this->CustomEntriesService->getIndex($params + ['page' => 1])->all()->toArray();
+        $page2 = $this->CustomEntriesService->getIndex($params + ['page' => 2])->all()->toArray();
+        //全3件を2件ずつに分割して取得できる
+        $this->assertCount(2, $page1);
+        $this->assertCount(1, $page2);
+        //2ページ目には1ページ目と異なるデータが返る
+        $this->assertNotContains($page2[0]->id, [$page1[0]->id, $page1[1]->id]);
+        //正の整数でない page は無視して 1 ページ目を返す
+        foreach(['abc', '-1', 0, '1.5'] as $invalidPage) {
+            $result = $this->CustomEntriesService->getIndex($params + ['page' => $invalidPage])->all()->toArray();
+            $this->assertEquals(array_column($page1, 'id'), array_column($result, 'id'));
+        }
+
+        //limitがない場合、pageパラメータは無視する
+        $result = $this->CustomEntriesService->getIndex(['page' => 2])->all();
+        $this->assertCount(3, $result);
     }
 
     /**
@@ -486,6 +504,56 @@ class CustomEntriesServiceTest extends BcTestCase
         $whereSql = $result->clause('where')->sql(new ValueBinder());
         $this->assertStringNotContainsString(' OR ', $whereSql);
         $this->assertStringContainsString(' AND ', $whereSql);
+    }
+
+    /**
+     * test createIndexConditions - セレクトボックス・テキストの項目に配列を渡した場合
+     */
+    public function test_createIndexConditions_arrayValue()
+    {
+        Configure::write('BcCustomContent.fieldTypes.BcCcSelect.controlType', 'select');
+        Configure::write('BcCustomContent.fieldTypes.BcCcText.controlType', 'text');
+
+        //準備
+        $CustomEntries = TableRegistry::getTableLocator()->get('BcCustomContent.CustomEntries');
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
+        $customTable->create([
+            'id' => 1,
+            'name' => 'recruit_categories',
+            'title' => '求人情報',
+            'type' => '1',
+            'display_field' => 'title',
+            'has_child' => 0
+        ]);
+        $this->CustomEntriesService->setup(1);
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(CustomContentsScenario::class);
+        $this->loadFixtureScenario(CustomEntriesScenario::class);
+
+        CustomFieldFactory::make(['id' => 100, 'name' => 'select_field', 'type' => 'BcCcSelect'])->persist();
+        CustomLinkFactory::make(['custom_table_id' => 1, 'custom_field_id' => 100, 'name' => 'select_field'])->persist();
+        CustomFieldFactory::make(['id' => 101, 'name' => 'text_field', 'type' => 'BcCcText'])->persist();
+        CustomLinkFactory::make(['custom_table_id' => 1, 'custom_field_id' => 101, 'name' => 'text_field'])->persist();
+
+        //配列の場合は IN 条件になること
+        $query = $CustomEntries->find();
+        $result = $this->CustomEntriesService->createIndexConditions($query, ['select_field' => ['a', 'b']]);
+        $whereSql = $result->clause('where')->sql(new ValueBinder());
+        $this->assertStringContainsString('select_field IN', $whereSql);
+
+        //単一の値の場合は一致条件のままであること
+        $query = $CustomEntries->find();
+        $result = $this->CustomEntriesService->createIndexConditions($query, ['select_field' => 'a']);
+        $whereSql = $result->clause('where')->sql(new ValueBinder());
+        $this->assertStringContainsString('select_field =', $whereSql);
+
+        //空の配列とテキストの項目への配列は検索条件にしないこと
+        $query = $CustomEntries->find();
+        $result = $this->CustomEntriesService->createIndexConditions($query, ['select_field' => [], 'text_field' => ['a']]);
+        $where = $result->clause('where');
+        $whereSql = $where ? $where->sql(new ValueBinder()) : '';
+        $this->assertStringNotContainsString('select_field', $whereSql);
+        $this->assertStringNotContainsString('text_field', $whereSql);
     }
 
     /**
@@ -855,10 +923,18 @@ class CustomEntriesServiceTest extends BcTestCase
         $this->loadFixtureScenario(CustomEntriesScenario::class);
         $this->loadFixtureScenario(CustomFieldsScenario::class);
 
-        //正常系実行
-        $result = $this->CustomEntriesService->removeField(1, 'name');
+        // 追加したカスタム列だけを削除し、共通列は残す
+        $tableName = 'custom_entry_1_recruit_categories';
+        $this->CustomEntriesService->addField(1, 'extra_field', 'text');
+        $result = $this->CustomEntriesService->removeField(1, 'extra_field');
         $this->assertTrue($result);
-        $this->assertFalse($this->BcDatabaseService->columnExists('custom_entry_1_recruit_categories', 'name'));
+        $this->assertFalse($this->BcDatabaseService->columnExists($tableName, 'extra_field'));
+        foreach (['id', 'custom_table_id', 'name', 'title', 'parent_id', 'lft', 'rght',
+            'level', 'status', 'publish_begin', 'publish_end', 'published',
+            'creator_id', 'modified', 'created'] as $column) {
+            $this->assertTrue($this->CustomEntriesService->removeField(1, $column));
+            $this->assertTrue($this->BcDatabaseService->columnExists($tableName, $column));
+        }
         //異常系実行
         $this->expectExceptionMessage("The specified column doesn't exist: test");
         $result = $this->CustomEntriesService->renameField(1, 'test', 'test1');

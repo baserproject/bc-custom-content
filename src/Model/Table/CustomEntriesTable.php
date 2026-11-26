@@ -14,11 +14,13 @@ namespace BcCustomContent\Model\Table;
 use ArrayObject;
 use BaserCore\Model\Entity\Content;
 use BaserCore\Model\Table\AppTable;
+use BaserCore\Model\Validation\BcValidation;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
+use BcCcGoogleMap\Utility\BcCcGoogleMapUtil;
 use BcCustomContent\Model\Entity\CustomEntry;
 use BcCustomContent\Model\Entity\CustomLink;
 use BcCustomContent\Model\Entity\CustomTable;
@@ -286,6 +288,8 @@ class CustomEntriesTable extends AppTable
             $validator = $this->setValidateEmailConfirm($validator, $link);
             $validator = $this->setValidateMaxFileSize($validator, $link, $postData);
             $validator = $this->setValidateFileExt($validator, $link);
+            $validator = $this->setValidateGoogleMap($validator, $link);
+            $validator = $this->setValidateContainsScript($validator, $link);
         }
 
         $this->setValidator('customEntry', $validator);
@@ -412,6 +416,28 @@ class CustomEntriesTable extends AppTable
                 $field->regex_error_message?: __d('baser_core', '形式が無効です。')
             );
         }
+        return $validator;
+    }
+
+    /**
+     * Googleマップの座標チェックをセットする
+     *
+     * @param Validator $validator
+     * @param CustomLink $link
+     * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function setValidateGoogleMap(Validator $validator, CustomLink $link): Validator
+    {
+        if ($link->custom_field->type !== 'BcCcGoogleMap' || !class_exists(BcCcGoogleMapUtil::class)) {
+            return $validator;
+        }
+        $validator->add($link->name, 'googleMap', [
+            'rule' => fn($value) => $value === null || $value === '' || BcCcGoogleMapUtil::parse((string) $value) !== null,
+            'message' => __d('baser_core', '座標が含まれていません')
+        ]);
         return $validator;
     }
 
@@ -733,6 +759,60 @@ class CustomEntriesTable extends AppTable
     function isJson(string $string)
     {
         return is_string($string) && is_array(json_decode($string, true)) && (json_last_error() == JSON_ERROR_NONE)? true : false;
+    }
+
+    /**
+     * スクリプトの入力チェックをセットする
+     *
+     * Wysiwyg フィールドは値をエスケープせずに出力するため、固定ページやブログ記事の本文と同じく
+     * 管理者以外はスクリプトを保存できないようにする。
+     * ループのグループは子フィールドの値が JSON にまとめて保存されるため、
+     * グループの値を展開して、子の Wysiwyg フィールドの値をチェックする。
+     *
+     * @param Validator $validator
+     * @param CustomLink $link
+     * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function setValidateContainsScript(Validator $validator, CustomLink $link): Validator
+    {
+        if ($link->custom_field->type === 'BcCcWysiwyg') {
+            $validator->add($link->name, 'containsScript', [
+                'rule' => ['containsScript'],
+                'provider' => 'bc',
+                'message' => __d('baser_core', '{0} でスクリプトの入力は許可されていません。', $link->title)
+            ]);
+            return $validator;
+        }
+
+        if ($link->custom_field->type !== 'group' || !$link->use_loop) return $validator;
+        $children = array_filter($this->links, fn($child) =>
+            $child->parent_id === $link->id && $child->custom_field->type === 'BcCcWysiwyg'
+        );
+        if (!$children) return $validator;
+
+        $validator->add($link->name, 'containsScript', [
+            'rule' => function($value) use ($children) {
+                $rows = is_string($value)? json_decode($value, true) : $value;
+                if (!is_array($rows)) return true;
+                foreach($rows as $row) {
+                    if (!is_array($row)) continue;
+                    foreach($children as $child) {
+                        if (!isset($row[$child->name])) continue;
+                        $childValue = $row[$child->name];
+                        // 改ざんされた送信で配列が届いた場合も、トップレベルの値（autoConvert）と同じく JSON にして中を検査する
+                        if (!is_scalar($childValue)) $childValue = json_encode($childValue, JSON_UNESCAPED_UNICODE);
+                        if (!BcValidation::containsScript($childValue)) {
+                            return __d('baser_core', '{0} でスクリプトの入力は許可されていません。', $child->title);
+                        }
+                    }
+                }
+                return true;
+            }
+        ]);
+        return $validator;
     }
 
 }

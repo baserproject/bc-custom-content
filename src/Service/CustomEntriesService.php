@@ -49,6 +49,16 @@ class CustomEntriesService implements CustomEntriesServiceInterface
 {
 
     /**
+     * createTable() が作成する共通列（Phinx が追加する id を含む）。
+     * 同名のカスタム項目を削除しても、エントリーテーブルの共通列は削除しない。
+     */
+    private const SHARED_COLUMNS = [
+        'id', 'custom_table_id', 'name', 'title', 'parent_id', 'lft', 'rght',
+        'level', 'status', 'publish_begin', 'publish_end', 'published',
+        'creator_id', 'modified', 'created',
+    ];
+
+    /**
      * Trait
      */
     use BcContainerTrait;
@@ -160,6 +170,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
     {
         $options = array_merge([
             'limit' => null,
+            'page' => null,    // ページ番号
             'direction' => '',    // 並び方向
             'order' => '',    // 並び順対象のフィールド
             'contain' => [],
@@ -179,11 +190,19 @@ class CustomEntriesService implements CustomEntriesServiceInterface
             $query->orderBy($this->createOrder($options['order'], $options['direction']));
         }
 
+        // 正の整数でない page（?page=abc、?page=-1 など）は無視して 1 ページ目を表示する
+        if (!empty($options['page'])) {
+            $options['page'] = filter_var($options['page'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null;
+        }
         if (!empty($options['limit'])) {
-            $query->limit($options['limit']);
+            if (!empty($options['page'])) {
+                $query->page($options['page'], $options['limit']);
+            } else {
+                $query->limit($options['limit']);
+            }
         }
 
-        unset($options['order'], $options['direction'], $options['limit']);
+        unset($options['order'], $options['direction'], $options['limit'], $options['page']);
 
         if (!empty($options)) {
             $query = $this->createIndexConditions($query, $options);
@@ -325,11 +344,12 @@ class CustomEntriesService implements CustomEntriesServiceInterface
                         }
                         $conditions[] = [$logicalOperator => $c];
                     } else {
-                        $conditions["CustomEntries.$key"] = $value;
+                        $conditions = array_merge($conditions, $this->createEqualCondition("CustomEntries.$key", $value));
                     }
                 }else{
                     if (in_array($controlType, ['text', 'textarea'])) {
-                        $conditions["CustomEntries.$key LIKE"] = '%' . $value . '%';
+                        // 文字列以外（配列）は検索条件にしない
+                        if (is_scalar($value)) $conditions["CustomEntries.$key LIKE"] = '%' . $value . '%';
                     } elseif ($controlType === 'multiCheckbox') {
                         if (!is_array($value)) $value = [$value];
                         $c = [];
@@ -340,7 +360,7 @@ class CustomEntriesService implements CustomEntriesServiceInterface
                     } elseif ($controlType === 'checkbox') {
                         if ($value) $conditions["CustomEntries.$key"] = $value;
                     } else {
-                        $conditions["CustomEntries.$key"] = $value;
+                        $conditions = array_merge($conditions, $this->createEqualCondition("CustomEntries.$key", $value));
                     }
                 }
 
@@ -615,6 +635,9 @@ class CustomEntriesService implements CustomEntriesServiceInterface
      */
     public function removeField(int $tableId, string $fieldName)
     {
+        if (in_array($fieldName, self::SHARED_COLUMNS, true)) {
+            return true;
+        }
         $table = $this->CustomEntries->getTableName($tableId);
         return $this->BcDatabaseService->removeColumn($table, $fieldName);
     }
@@ -870,6 +893,24 @@ class CustomEntriesService implements CustomEntriesServiceInterface
     public function moveDown(int $id)
     {
         return $this->CustomEntries->moveDown($this->get($id, ['contain' => ['CustomTables']]));
+    }
+
+    /**
+     * 値が一致する検索条件を作成する
+     *
+     * CakePHP 5 は配列の値に自動で IN を付けないため、配列の場合は IN で検索する。
+     * 空の配列と、配列を含む配列は検索条件にしない。
+     *
+     * @param string $field
+     * @param mixed $value
+     * @return array
+     */
+    private function createEqualCondition(string $field, mixed $value): array
+    {
+        if (!is_array($value)) return [$field => $value];
+        $value = array_values(array_filter($value, 'is_scalar'));
+        if (!$value) return [];
+        return [$field . ' IN' => $value];
     }
 
     /**

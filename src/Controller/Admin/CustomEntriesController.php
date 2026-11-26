@@ -11,7 +11,6 @@
 
 namespace BcCustomContent\Controller\Admin;
 
-use BaserCore\Error\BcException;
 use BaserCore\Service\ContentsService;
 use BaserCore\Service\ContentsServiceInterface;
 use BaserCore\Utility\BcSiteConfig;
@@ -23,6 +22,7 @@ use BcCustomContent\Service\CustomEntriesServiceInterface;
 use BcCustomContent\Service\CustomTablesService;
 use BcCustomContent\Service\CustomTablesServiceInterface;
 use Cake\Event\EventInterface;
+use Cake\Http\Exception\NotFoundException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
@@ -54,7 +54,9 @@ class CustomEntriesController extends CustomContentAdminAppController
 
         /** @var CustomTablesService $entriesService */
         $tablesService = $this->getService(CustomTablesServiceInterface::class);
-        $contentId = $tablesService->getCustomContentId($tableId);
+        // 数字以外の ID は int 型の引数に渡せず TypeError になるため、存在しないページとして扱う
+        if (!ctype_digit((string)$tableId)) throw new NotFoundException(__d('baser_core', 'カスタムテーブルが見つかりません。'));
+        $contentId = $tablesService->getCustomContentId((int)$tableId);
 
         if ($contentId) {
             /** @var ContentsService $contentsService */
@@ -64,7 +66,7 @@ class CustomEntriesController extends CustomContentAdminAppController
                 $contentId,
                 $this->getRequest()
             );
-            if (!$request) throw new BcException(__d('baser_core', 'コンテンツデータが見つかりません。'));
+            if (!$request) throw new NotFoundException(__d('baser_core', 'コンテンツデータが見つかりません。'));
             $this->setRequest($request);
         }
     }

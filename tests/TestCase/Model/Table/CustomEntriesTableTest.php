@@ -22,9 +22,11 @@ use BcCustomContent\Test\Factory\CustomFieldFactory;
 use BcCustomContent\Test\Factory\CustomLinkFactory;
 use BcCustomContent\Test\Scenario\CustomContentsScenario;
 use BcCustomContent\Service\CustomEntriesService;
+use Cake\Validation\Validator;
 use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
+use Cake\Routing\Router;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Laminas\Diactoros\UploadedFile;
 
@@ -556,6 +558,91 @@ class CustomEntriesTableTest extends BcTestCase
     }
 
     /**
+     * test setupValidate - BcCcGoogleMap のフィールドに座標チェックが設定されること
+     */
+    public function test_setupValidate_googleMap()
+    {
+        CustomFieldFactory::make(['id' => 1, 'type' => 'BcCcGoogleMap'])->persist();
+        CustomLinkFactory::make(['id' => 1, 'name' => 'map', 'custom_table_id' => 1, 'custom_field_id' => 1])->persist();
+        $this->CustomEntriesTable->setLinks(1);
+
+        $this->CustomEntriesTable->setupValidate(['map' => 'https://maps.app.goo.gl/x']);
+        $validator = $this->CustomEntriesTable->getValidator('customEntry');
+
+        $errors = $validator->validate(['map' => 'https://maps.app.goo.gl/x', 'creator_id' => 1]);
+        $this->assertEquals('座標が含まれていません', $errors['map']['googleMap']);
+
+        $errors = $validator->validate(['map' => '35.681236,139.767125', 'creator_id' => 1]);
+        $this->assertArrayNotHasKey('map', $errors);
+    }
+
+    /**
+     * test setupValidate - 管理者以外は Wysiwyg フィールドにスクリプトを保存できないこと
+     */
+    public function test_setupValidate_wysiwygContainsScript()
+    {
+        CustomFieldFactory::make(['id' => 1, 'type' => 'BcCcWysiwyg'])->persist();
+        CustomLinkFactory::make(['id' => 1, 'name' => 'body', 'title' => '本文', 'custom_table_id' => 1, 'custom_field_id' => 1])->persist();
+        $this->CustomEntriesTable->setLinks(1);
+        $this->CustomEntriesTable->setupValidate();
+        $validator = $this->CustomEntriesTable->getValidator('customEntry');
+
+        // 管理者以外：イベント属性やスクリプトを含む値は拒否する
+        $errors = $validator->validate(['body' => '<img src="x" onerror="alert(1)">', 'creator_id' => 1]);
+        $this->assertEquals('本文 でスクリプトの入力は許可されていません。', $errors['body']['containsScript']);
+        $errors = $validator->validate(['body' => '<script>alert(1)</script>', 'creator_id' => 1]);
+        $this->assertArrayHasKey('containsScript', $errors['body']);
+
+        // 管理者以外：通常の HTML は保存できる
+        $errors = $validator->validate(['body' => '<p><strong>本文</strong></p>', 'creator_id' => 1]);
+        $this->assertArrayNotHasKey('body', $errors);
+
+        // 管理者：スクリプトを含む値も保存できる
+        Router::setRequest($this->loginAdmin($this->getRequest()));
+        $errors = $validator->validate(['body' => '<script>alert(1)</script>', 'creator_id' => 1]);
+        $this->assertArrayNotHasKey('body', $errors);
+    }
+
+    /**
+     * test setupValidate - 管理者以外はループ内の Wysiwyg フィールドにスクリプトを保存できないこと
+     */
+    public function test_setupValidate_wysiwygInLoopContainsScript()
+    {
+        CustomFieldFactory::make(['id' => 1, 'type' => 'group'])->persist();
+        CustomFieldFactory::make(['id' => 2, 'type' => 'BcCcWysiwyg'])->persist();
+        CustomFieldFactory::make(['id' => 3, 'type' => 'BcCcText'])->persist();
+        CustomLinkFactory::make(['id' => 1, 'name' => 'items', 'title' => '項目', 'custom_table_id' => 1, 'custom_field_id' => 1, 'use_loop' => true])->persist();
+        CustomLinkFactory::make(['id' => 2, 'name' => 'item_body', 'title' => '項目本文', 'custom_table_id' => 1, 'custom_field_id' => 2, 'parent_id' => 1])->persist();
+        CustomLinkFactory::make(['id' => 3, 'name' => 'item_title', 'title' => '項目名', 'custom_table_id' => 1, 'custom_field_id' => 3, 'parent_id' => 1])->persist();
+        $this->CustomEntriesTable->setLinks(1);
+        $this->CustomEntriesTable->setupValidate();
+        $validator = $this->CustomEntriesTable->getValidator('customEntry');
+
+        // ループの値は beforeMarshal で JSON 文字列に変換されてから検証される
+        $loop = fn($body) => json_encode([
+            ['item_title' => '<b>名前</b>', 'item_body' => '<p>ok</p>'],
+            ['item_title' => '名前', 'item_body' => $body],
+        ]);
+
+        // 管理者以外：ループ内の Wysiwyg にスクリプトを含む値は拒否する
+        $errors = $validator->validate(['items' => $loop('<img src="x" onerror="alert(1)">'), 'creator_id' => 1]);
+        $this->assertEquals('項目本文 でスクリプトの入力は許可されていません。', $errors['items']['containsScript']);
+
+        // 管理者以外：ループ内の Wysiwyg の値が配列でも、中のスクリプトは拒否する
+        $errors = $validator->validate(['items' => $loop(['<script>alert(1)</script>']), 'creator_id' => 1]);
+        $this->assertEquals('項目本文 でスクリプトの入力は許可されていません。', $errors['items']['containsScript']);
+
+        // 管理者以外：通常の HTML は保存できる
+        $errors = $validator->validate(['items' => $loop('<p>ok</p>'), 'creator_id' => 1]);
+        $this->assertArrayNotHasKey('items', $errors);
+
+        // 管理者：スクリプトを含む値も保存できる
+        Router::setRequest($this->loginAdmin($this->getRequest()));
+        $errors = $validator->validate(['items' => $loop('<script>alert(1)</script>'), 'creator_id' => 1]);
+        $this->assertArrayNotHasKey('items', $errors);
+    }
+
+    /**
      * test setValidateEmailConfirm
      */
     public function test_setValidateEmailConfirm()
@@ -664,6 +751,36 @@ class CustomEntriesTableTest extends BcTestCase
             'test' => '半角で入力@gmail.com'
         ]);
         $this->assertEquals('半角で入力してください。', current($errors['test']));
+    }
+
+    /**
+     * test setValidateGoogleMap
+     */
+    public function test_setValidateGoogleMap()
+    {
+        $link = CustomLinkFactory::make(['name' => 'test'])->getEntity();
+        $customField = CustomFieldFactory::make()->getEntity();
+        $link->custom_field = $customField;
+
+        // BcCcGoogleMap 以外はルールを追加しない
+        $customField->type = 'BcCcText';
+        $validator = $this->CustomEntriesTable->setValidateGoogleMap(new Validator(), $link);
+        $this->assertFalse($validator->field('test')->has('googleMap'));
+
+        // BcCcGoogleMap はルールを追加する
+        $customField->type = 'BcCcGoogleMap';
+        $validator = $this->CustomEntriesTable->setValidateGoogleMap(new Validator(), $link);
+        $this->assertTrue($validator->field('test')->has('googleMap'));
+
+        // 座標を含まない値
+        $this->assertEquals(
+            ['test' => ['googleMap' => '座標が含まれていません']],
+            $validator->validate(['test' => 'https://maps.app.goo.gl/x'])
+        );
+        // 座標だけの値
+        $this->assertEquals([], $validator->validate(['test' => '35.68,139.76']));
+        // 空の値
+        $this->assertEquals([], $validator->validate(['test' => '']));
     }
 
     /**
